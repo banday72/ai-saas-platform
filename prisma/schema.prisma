@@ -1,0 +1,77 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id                String     @id @default(cuid())
+  clerkId           String     @unique
+  email             String     @unique
+  name              String?
+  image             String?
+  stripeId          String?    @unique
+  subscriptionId    String?
+  subscriptionPlan  String     @default("free")
+  subscriptionEnd   DateTime?
+  credits           Int        @default(0)
+  monthlyCredits    Int        @default(0)
+  monthlyResetDate  DateTime?
+  createdAt         DateTime   @default(now())
+  updatedAt         DateTime   @updatedAt
+  
+  generations       Generation[]
+  usageHistory      UsageHistory[]
+  billingHistory    BillingHistory[]
+  
+  @@index([clerkId])
+}
+
+model Generation {
+  id          String   @id @default(cuid())
+  userId      String
+  type        String
+  title       String
+  content     String   @db.Text
+  prompt      String   @db.Text
+  creditsUsed Int      @default(10)
+  status      String   @default("completed")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+  @@index([createdAt])
+}
+
+model UsageHistory {
+  id        String   @id @default(cuid())
+  userId    String
+  type      String
+  amount    Int      @default(1)
+  createdAt DateTime @default(now())
+  
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
+
+model BillingHistory {
+  id          String   @id @default(cuid())
+  userId      String
+  amount      Int
+  currency    String   @default("usd")
+  status      String
+  stripeId    String?
+  plan        String
+  period      String
+  createdAt   DateTime @default(now())
+  
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  
+  @@index([userId])
+}
