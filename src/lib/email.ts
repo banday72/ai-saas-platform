@@ -2,7 +2,13 @@ import "server-only";
 
 import { Resend } from "resend";
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+let _resend: Resend | null = null;
+function getResend(): Resend {
+  if (!_resend) {
+    _resend = new Resend(process.env.RESEND_API_KEY);
+  }
+  return _resend;
+}
 
 export async function sendLowCreditsEmail(
   email: string,
@@ -13,7 +19,7 @@ export async function sendLowCreditsEmail(
   if (!process.env.RESEND_API_KEY) return;
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: "AI SaaS <notifications@ai-saas.com>",
       to: email,
       subject: `Low Credits Warning - ${credits} credits remaining`,
@@ -42,7 +48,7 @@ export async function sendBillingReceiptEmail(
   if (!process.env.RESEND_API_KEY) return;
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: "AI SaaS <billing@ai-saas.com>",
       to: email,
       subject: `Payment Receipt - $${(amount / 100).toFixed(2)} for ${plan} plan`,
@@ -74,7 +80,7 @@ export async function sendMonthlyReportEmail(
   if (!process.env.RESEND_API_KEY) return;
 
   try {
-    await resend.emails.send({
+    await getResend().emails.send({
       from: "AI SaaS <reports@ai-saas.com>",
       to: email,
       subject: `Your Monthly Report - ${new Date().toLocaleString("default", { month: "long" })}`,
