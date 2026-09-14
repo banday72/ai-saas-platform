@@ -2,9 +2,9 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Textarea, Label } from "@/src/components/ui";
+import { Button, Card, CardContent, CardHeader, CardTitle, Input, Textarea, Label } from "@/src/components/ui";
 import { Alert } from "@/src/components/ui/Alert";
-import { Trash2, Plus, Edit } from "lucide-react";
+import { Plus, Edit, Trash2, FileText, ArrowRight } from "lucide-react";
 
 const TYPES = {
   blog: "Blog Post",
@@ -62,17 +62,14 @@ export function TemplatesClient({ templates }: { templates: Template[] }) {
     e.preventDefault();
     setLoading(true);
     setError(null);
-
     try {
       const url = editingId ? `/api/templates?id=${editingId}` : "/api/templates";
       const method = editingId ? "PUT" : "POST";
-
       const res = await fetch(url, {
         method,
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name, description, type, prompt }),
       });
-
       if (res.ok) {
         resetForm();
         router.refresh();
@@ -89,32 +86,22 @@ export function TemplatesClient({ templates }: { templates: Template[] }) {
 
   async function handleDelete(id: string) {
     if (!confirm("Delete this template?")) return;
-    try {
-      await fetch(`/api/templates?id=${id}`, { method: "DELETE" });
-      router.refresh();
-    } catch {
-      // silent
-    }
-  }
-
-  async function handleUseTemplate(template: Template) {
-    const params = new URLSearchParams({
-      type: template.type,
-      templateId: template.id,
-    });
-    router.push(`/ai-writer?${params.toString()}`);
+    await fetch(`/api/templates?id=${id}`, { method: "DELETE" });
+    router.refresh();
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Templates</h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <h2 className="text-2xl font-bold text-white tracking-tight">
+            Templates
+          </h2>
+          <p className="text-sm text-zinc-400 mt-0.5">
             Save and reuse your best prompts
           </p>
         </div>
-        <Button onClick={() => { resetForm(); setShowForm(true); }}>
+        <Button onClick={() => { resetForm(); setShowForm(true); }} size="sm">
           <Plus className="h-4 w-4" />
           New Template
         </Button>
@@ -125,15 +112,14 @@ export function TemplatesClient({ templates }: { templates: Template[] }) {
       {showForm && (
         <Card>
           <CardHeader>
-            <CardTitle>{editingId ? "Edit Template" : "New Template"}</CardTitle>
+            <CardTitle>{editingId ? "Edit" : "New"} Template</CardTitle>
           </CardHeader>
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <Label htmlFor="tpl-name">Name</Label>
+                  <Label>Name</Label>
                   <Input
-                    id="tpl-name"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     placeholder="e.g. Weekly Newsletter"
@@ -142,49 +128,42 @@ export function TemplatesClient({ templates }: { templates: Template[] }) {
                 </div>
                 <div>
                   <Label>Content Type</Label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {(Object.keys(TYPES) as ContentType[]).map((key) => (
-                      <button
-                        key={key}
-                        type="button"
-                        onClick={() => setType(key)}
-                        className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${
-                          type === key
-                            ? "bg-amber-600 border-amber-600 text-white"
-                            : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600"
-                        }`}
-                      >
-                        {TYPES[key]}
-                      </button>
+                  <select
+                    value={type}
+                    onChange={(e) => setType(e.target.value as ContentType)}
+                    className="w-full h-10 rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30"
+                  >
+                    {Object.entries(TYPES).map(([key, label]) => (
+                      <option key={key} value={key}>
+                        {label}
+                      </option>
                     ))}
-                  </div>
+                  </select>
                 </div>
               </div>
               <div>
-                <Label htmlFor="tpl-desc">Description (optional)</Label>
+                <Label>Description</Label>
                 <Input
-                  id="tpl-desc"
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Brief description of this template"
+                  placeholder="Optional description"
                 />
               </div>
               <div>
-                <Label htmlFor="tpl-prompt">Prompt Template</Label>
+                <Label>Prompt</Label>
                 <Textarea
-                  id="tpl-prompt"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  rows={5}
-                  placeholder="Write your prompt template here..."
+                  rows={4}
+                  placeholder="Write your prompt template..."
                   required
                 />
               </div>
               <div className="flex gap-2">
-                <Button type="submit" loading={loading}>
-                  {editingId ? "Update Template" : "Create Template"}
+                <Button type="submit" loading={loading} size="sm">
+                  {editingId ? "Update" : "Create"}
                 </Button>
-                <Button type="button" variant="ghost" onClick={resetForm}>
+                <Button type="button" variant="ghost" onClick={resetForm} size="sm">
                   Cancel
                 </Button>
               </div>
@@ -193,45 +172,67 @@ export function TemplatesClient({ templates }: { templates: Template[] }) {
         </Card>
       )}
 
-      {templates.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <p className="text-slate-400 mb-4">No templates yet. Create one to save your best prompts.</p>
-            <Button onClick={() => setShowForm(true)}>
-              <Plus className="h-4 w-4" />
-              Create First Template
-            </Button>
-          </CardContent>
-        </Card>
+      {templates.length === 0 && !showForm ? (
+        <div className="p-12 rounded-xl border border-zinc-800/80 bg-zinc-900/30 text-center">
+          <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700/50 flex items-center justify-center mx-auto mb-4">
+            <FileText className="h-6 w-6 text-zinc-500" />
+          </div>
+          <p className="text-sm text-zinc-400 mb-3">No templates yet</p>
+          <Button onClick={() => setShowForm(true)} size="sm">
+            <Plus className="h-4 w-4" />
+            Create Template
+          </Button>
+        </div>
       ) : (
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
           {templates.map((tpl) => (
-            <Card key={tpl.id} className="hover:border-slate-600 transition">
-              <CardHeader>
-                <CardTitle className="text-base">{tpl.name}</CardTitle>
-                <CardDescription>
-                  {TYPES[tpl.type as ContentType] ?? tpl.type}
-                  {tpl.description && ` · ${tpl.description}`}
-                </CardDescription>
-              </CardHeader>
-              <CardContent>
-                <p className="text-xs text-slate-500 line-clamp-3 mb-4">{tpl.prompt}</p>
-                <div className="flex items-center justify-between">
-                  <span className="text-xs text-slate-500">Used {tpl.usageCount} times</span>
-                  <div className="flex gap-1">
-                    <Button variant="ghost" size="sm" onClick={() => handleUseTemplate(tpl)}>
-                      Use
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => startEdit(tpl)}>
-                      <Edit className="h-3.5 w-3.5" />
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => handleDelete(tpl.id)}>
-                      <Trash2 className="h-3.5 w-3.5 text-red-400" />
-                    </Button>
-                  </div>
+            <div
+              key={tpl.id}
+              className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30 hover:border-zinc-700/80 transition-colors"
+            >
+              <div className="flex items-start justify-between mb-2">
+                <div className="min-w-0">
+                  <h4 className="text-sm font-medium text-white truncate">
+                    {tpl.name}
+                  </h4>
+                  <p className="text-[11px] text-zinc-500 mt-0.5">
+                    {TYPES[tpl.type as ContentType] ?? tpl.type}
+                  </p>
                 </div>
-              </CardContent>
-            </Card>
+              </div>
+              {tpl.description && (
+                <p className="text-xs text-zinc-500 mb-2 line-clamp-2">
+                  {tpl.description}
+                </p>
+              )}
+              <p className="text-xs text-zinc-600 line-clamp-2 mb-3 font-mono">
+                {tpl.prompt}
+              </p>
+              <div className="flex items-center justify-between">
+                <span className="text-[10px] text-zinc-600">
+                  Used {tpl.usageCount}x
+                </span>
+                <div className="flex gap-1">
+                  <a href={`/ai-writer?templateId=${tpl.id}`}>
+                    <button className="p-1.5 rounded-lg text-zinc-500 hover:text-amber-500 hover:bg-zinc-800 transition-colors">
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </button>
+                  </a>
+                  <button
+                    onClick={() => startEdit(tpl)}
+                    className="p-1.5 rounded-lg text-zinc-500 hover:text-white hover:bg-zinc-800 transition-colors"
+                  >
+                    <Edit className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleDelete(tpl.id)}
+                    className="p-1.5 rounded-lg text-zinc-500 hover:text-red-400 hover:bg-zinc-800 transition-colors"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </div>
+            </div>
           ))}
         </div>
       )}

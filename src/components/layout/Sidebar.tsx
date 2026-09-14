@@ -12,17 +12,20 @@ import {
   FileText,
   BarChart3,
   Users,
+  ChevronLeft,
+  ChevronRight,
 } from "lucide-react";
+import { useState } from "react";
 
 const navItems = [
-  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard, color: "from-amber-500 to-orange-600" },
-  { href: "/ai-writer", label: "AI Writer", icon: PenLine, color: "from-violet-500 to-purple-600" },
-  { href: "/history", label: "History", icon: History, color: "from-cyan-500 to-blue-600" },
-  { href: "/templates", label: "Templates", icon: FileText, color: "from-emerald-500 to-green-600" },
-  { href: "/analytics", label: "Analytics", icon: BarChart3, color: "from-pink-500 to-rose-600" },
-  { href: "/billing", label: "Billing", icon: CreditCard, color: "from-blue-500 to-indigo-600" },
-  { href: "/team", label: "Team", icon: Users, color: "from-teal-500 to-cyan-600" },
-  { href: "/settings", label: "Settings", icon: Settings, color: "from-slate-400 to-slate-500" },
+  { href: "/dashboard", label: "Dashboard", icon: LayoutDashboard },
+  { href: "/ai-writer", label: "AI Writer", icon: PenLine },
+  { href: "/history", label: "History", icon: History },
+  { href: "/templates", label: "Templates", icon: FileText },
+  { href: "/analytics", label: "Analytics", icon: BarChart3 },
+  { href: "/billing", label: "Billing", icon: CreditCard },
+  { href: "/team", label: "Team", icon: Users },
+  { href: "/settings", label: "Settings", icon: Settings },
 ];
 
 const titles: Record<string, string> = {
@@ -47,20 +50,37 @@ export function Sidebar({
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
+  const [collapsed, setCollapsed] = useState(false);
 
   return (
-    <div className="flex h-screen" style={{ background: "#0a0a1a" }}>
-      <aside className="w-64 shrink-0 border-r border-white/5 p-6 overflow-y-auto flex flex-col" style={{ background: "linear-gradient(180deg, #0f0f2a 0%, #0a0a1a 100%)" }}>
-        <div className="mb-8">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-br from-amber-400 to-orange-600 flex items-center justify-center shadow-lg shadow-amber-500/20">
-              <span className="text-white font-bold text-lg">A</span>
-            </div>
-            <span className="font-bold text-xl text-white">AI SaaS</span>
-          </div>
+    <div className="flex h-screen bg-zinc-950">
+      {/* Sidebar */}
+      <aside
+        className={`${collapsed ? "w-[68px]" : "w-60"} shrink-0 border-r border-zinc-800/80 bg-zinc-900/60 flex flex-col transition-all duration-200`}
+      >
+        {/* Logo */}
+        <div className="h-14 flex items-center justify-between px-4 border-b border-zinc-800/80">
+          {!collapsed && (
+            <Link href="/dashboard" className="flex items-center gap-2.5">
+              <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
+                <span className="text-black font-bold text-sm">C</span>
+              </div>
+              <span className="font-semibold text-sm text-white tracking-tight">
+                ContentForge
+              </span>
+            </Link>
+          )}
+          {collapsed && (
+            <Link href="/dashboard" className="mx-auto">
+              <div className="w-8 h-8 rounded-lg bg-amber-500 flex items-center justify-center">
+                <span className="text-black font-bold text-sm">C</span>
+              </div>
+            </Link>
+          )}
         </div>
 
-        <nav className="space-y-1 flex-1">
+        {/* Navigation */}
+        <nav className="flex-1 px-2 py-3 space-y-0.5 overflow-y-auto">
           {navItems.map((item) => {
             const isActive =
               pathname === item.href || pathname.startsWith(item.href + "/");
@@ -69,39 +89,70 @@ export function Sidebar({
               <Link
                 key={item.href}
                 href={item.href}
-                className={`flex items-center gap-3 px-4 py-2.5 rounded-xl text-sm font-medium transition-all duration-200 ${
+                title={collapsed ? item.label : undefined}
+                className={`flex items-center gap-3 px-3 py-2 rounded-lg text-sm font-medium transition-colors duration-100 ${
                   isActive
-                    ? `bg-gradient-to-r ${item.color} text-white shadow-lg`
-                    : "text-slate-400 hover:text-white hover:bg-white/5"
-                }`}
-                style={isActive ? { boxShadow: `0 4px 15px -3px rgba(245, 158, 11, 0.3)` } : {}}
+                    ? "bg-amber-500/10 text-amber-500"
+                    : "text-zinc-400 hover:text-white hover:bg-zinc-800/60"
+                } ${collapsed ? "justify-center" : ""}`}
               >
-                <Icon className="h-4 w-4" />
-                {item.label}
+                <Icon className="h-4 w-4 shrink-0" />
+                {!collapsed && item.label}
               </Link>
             );
           })}
         </nav>
 
-        <div className="mt-6 rounded-2xl p-4 border border-white/5" style={{ background: "linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(139,92,246,0.1) 100%)" }}>
-          <div className="flex items-center justify-between mb-2">
-            <p className="text-xs text-slate-400">Credits remaining</p>
-            <span className="text-xs font-bold px-2 py-0.5 rounded-full bg-gradient-to-r from-amber-500 to-orange-500 text-white capitalize">
-              {plan}
-            </span>
+        {/* Credits */}
+        {!collapsed && (
+          <div className="mx-3 mb-3 p-3 rounded-lg bg-zinc-800/50 border border-zinc-800">
+            <div className="flex items-center justify-between mb-1">
+              <span className="text-xs text-zinc-500">Credits</span>
+              <span className="text-[10px] font-medium uppercase tracking-wider text-amber-500">
+                {plan}
+              </span>
+            </div>
+            <p className="text-xl font-bold text-white">{credits}</p>
+            <div className="mt-2 h-1 rounded-full bg-zinc-700/50 overflow-hidden">
+              <div
+                className="h-full rounded-full bg-amber-500"
+                style={{ width: `${Math.min((credits / 100) * 100, 100)}%` }}
+              />
+            </div>
           </div>
-          <p className="text-3xl font-bold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent">{credits}</p>
-        </div>
+        )}
+
+        {/* Collapse toggle */}
+        <button
+          onClick={() => setCollapsed(!collapsed)}
+          className="mx-3 mb-3 h-8 flex items-center justify-center rounded-lg text-zinc-500 hover:text-zinc-300 hover:bg-zinc-800/60 transition-colors"
+        >
+          {collapsed ? (
+            <ChevronRight className="h-4 w-4" />
+          ) : (
+            <ChevronLeft className="h-4 w-4" />
+          )}
+        </button>
       </aside>
 
+      {/* Main */}
       <div className="flex-1 flex flex-col min-w-0">
-        <div className="border-b border-white/5 px-8 py-4 flex justify-between items-center" style={{ background: "rgba(10,10,26,0.8)", backdropFilter: "blur(12px)" }}>
-          <h1 className="text-white text-xl font-bold">
+        {/* Header */}
+        <header className="h-14 shrink-0 border-b border-zinc-800/80 bg-zinc-900/40 backdrop-blur-sm flex items-center justify-between px-6">
+          <h1 className="text-sm font-semibold text-white">
             {titles[pathname] ?? "Dashboard"}
           </h1>
-          <UserButton />
-        </div>
-        <main className="flex-1 overflow-y-auto p-8">{children}</main>
+          <UserButton
+            appearance={{
+              elements: {
+                avatarBox: "h-8 w-8",
+              },
+            }}
+          />
+        </header>
+
+        {/* Content */}
+        <main className="flex-1 overflow-y-auto p-6">{children}</main>
       </div>
     </div>
   );

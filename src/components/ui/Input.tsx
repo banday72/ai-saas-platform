@@ -6,7 +6,7 @@ export function Input({ className, ...props }: InputProps) {
   return (
     <input
       className={cn(
-        "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all",
+        "w-full h-10 rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50 transition-colors",
         className
       )}
       {...props}
@@ -20,7 +20,7 @@ export function Textarea({ className, ...props }: TextareaProps) {
   return (
     <textarea
       className={cn(
-        "w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-slate-100 placeholder:text-slate-500 focus:border-amber-500/50 focus:outline-none focus:ring-2 focus:ring-amber-500/20 transition-all",
+        "w-full rounded-lg border border-zinc-800 bg-zinc-900 px-3 py-2.5 text-sm text-white placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-amber-500/30 focus:border-amber-500/50 transition-colors resize-none",
         className
       )}
       {...props}
@@ -33,7 +33,7 @@ type LabelProps = React.LabelHTMLAttributes<HTMLLabelElement>;
 export function Label({ className, children, ...props }: LabelProps) {
   return (
     <label
-      className={cn("block text-sm font-medium text-slate-300 mb-1.5", className)}
+      className={cn("block text-sm font-medium text-zinc-300 mb-1.5", className)}
       {...props}
     >
       {children}

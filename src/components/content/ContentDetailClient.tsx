@@ -6,7 +6,7 @@ import Link from "next/link";
 import { Button, Card, CardContent, CardHeader, CardTitle, Input, Textarea, Label } from "@/src/components/ui";
 import { Alert } from "@/src/components/ui/Alert";
 import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
-import { Copy, Check, ArrowLeft, Download, Folder, Tag, Trash2 } from "lucide-react";
+import { Copy, Check, ArrowLeft, Download, Folder, Tag, Trash2, Sparkles } from "lucide-react";
 
 const TYPES: Record<string, string> = {
   blog: "Blog Post",
@@ -30,17 +30,8 @@ interface Generation {
   tags?: { id: string; name: string; color: string | null }[];
 }
 
-interface Folder {
-  id: string;
-  name: string;
-  color: string | null;
-}
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string | null;
-}
+interface FolderType { id: string; name: string; color: string | null; }
+interface TagType { id: string; name: string; color: string | null; }
 
 export function ContentDetailClient({
   generation,
@@ -49,8 +40,8 @@ export function ContentDetailClient({
   creditsLeft,
 }: {
   generation: Generation;
-  folders: Folder[];
-  tags: Tag[];
+  folders: FolderType[];
+  tags: TagType[];
   creditsLeft: number;
 }) {
   const router = useRouter();
@@ -71,7 +62,10 @@ export function ContentDetailClient({
   }
 
   async function handleExport(format: string) {
-    window.open(`/api/content/export?id=${generation.id}&format=${format}`, "_blank");
+    window.open(
+      `/api/content/export?id=${generation.id}&format=${format}`,
+      "_blank"
+    );
   }
 
   async function handleRegenerate() {
@@ -81,7 +75,10 @@ export function ContentDetailClient({
       const res = await fetch("/api/ai/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ type: generation.type, prompt: generation.prompt }),
+        body: JSON.stringify({
+          type: generation.type,
+          prompt: generation.prompt,
+        }),
       });
       const data = await res.json();
       if (res.ok) {
@@ -91,7 +88,7 @@ export function ContentDetailClient({
         setError(data.error || "Failed to regenerate");
       }
     } catch {
-      setError("Failed to regenerate content");
+      setError("Failed to regenerate");
     } finally {
       setRegenerating(false);
     }
@@ -103,11 +100,12 @@ export function ContentDetailClient({
       const res = await fetch(`/api/content/${generation.id}`, {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ folderId: folderId || null, tagIds: selectedTags }),
+        body: JSON.stringify({
+          folderId: folderId || null,
+          tagIds: selectedTags,
+        }),
       });
-      if (res.ok) {
-        router.refresh();
-      }
+      if (res.ok) router.refresh();
     } catch {
       // silent
     } finally {
@@ -116,13 +114,13 @@ export function ContentDetailClient({
   }
 
   async function handleDelete() {
-    if (!confirm("Are you sure you want to delete this content?")) return;
+    if (!confirm("Delete this content?")) return;
     setDeleting(true);
     try {
-      const res = await fetch(`/api/content/${generation.id}`, { method: "DELETE" });
-      if (res.ok) {
-        router.push("/history");
-      }
+      const res = await fetch(`/api/content/${generation.id}`, {
+        method: "DELETE",
+      });
+      if (res.ok) router.push("/history");
     } catch {
       // silent
     } finally {
@@ -130,57 +128,75 @@ export function ContentDetailClient({
     }
   }
 
-  function toggleTag(tagId: string) {
+  function toggleTag(id: string) {
     setSelectedTags((prev) =>
-      prev.includes(tagId) ? prev.filter((id) => id !== tagId) : [...prev, tagId]
+      prev.includes(id) ? prev.filter((t) => t !== id) : [...prev, id]
     );
   }
 
   return (
-    <div className="space-y-6">
-      <div className="flex items-center gap-4">
+    <div className="space-y-6 animate-fade-in">
+      <div className="flex items-center gap-3">
         <Link href="/history">
-          <Button variant="ghost" size="sm">
+          <button className="p-1.5 rounded-lg text-zinc-400 hover:text-white hover:bg-zinc-800 transition-colors">
             <ArrowLeft className="h-4 w-4" />
-            Back
-          </Button>
+          </button>
         </Link>
-        <div className="flex-1">
-          <h1 className="text-2xl font-bold text-white">{generation.title}</h1>
-          <p className="text-slate-400 text-sm mt-1">
-            {TYPES[generation.type] ?? generation.type} · Created {new Date(generation.createdAt).toLocaleDateString()}
+        <div className="flex-1 min-w-0">
+          <h2 className="text-xl font-bold text-white tracking-tight truncate">
+            {generation.title}
+          </h2>
+          <p className="text-xs text-zinc-500 mt-0.5">
+            {TYPES[generation.type] ?? generation.type} ·{" "}
+            {new Date(generation.createdAt).toLocaleDateString()}
           </p>
         </div>
-        <div className="flex gap-2">
-          <Button onClick={handleCopy} variant="outline" size="sm">
-            {copied ? <Check className="h-4 w-4 text-green-400" /> : <Copy className="h-4 w-4" />}
+        <div className="flex gap-1 shrink-0">
+          <button
+            onClick={handleCopy}
+            className="inline-flex items-center gap-1 rounded-lg border border-zinc-800 px-2.5 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
+          >
+            {copied ? (
+              <Check className="h-3.5 w-3.5 text-emerald-400" />
+            ) : (
+              <Copy className="h-3.5 w-3.5" />
+            )}
             {copied ? "Copied" : "Copy"}
-          </Button>
-          <Button onClick={() => handleExport("txt")} variant="outline" size="sm">
-            <Download className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => handleExport("txt")}
+            className="inline-flex items-center gap-1 rounded-lg border border-zinc-800 px-2.5 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
+          >
+            <Download className="h-3.5 w-3.5" />
             TXT
-          </Button>
-          <Button onClick={() => handleExport("md")} variant="outline" size="sm">
-            <Download className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => handleExport("md")}
+            className="inline-flex items-center gap-1 rounded-lg border border-zinc-800 px-2.5 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
+          >
+            <Download className="h-3.5 w-3.5" />
             MD
-          </Button>
-          <Button onClick={() => handleExport("html")} variant="outline" size="sm">
-            <Download className="h-4 w-4" />
+          </button>
+          <button
+            onClick={() => handleExport("html")}
+            className="inline-flex items-center gap-1 rounded-lg border border-zinc-800 px-2.5 py-1.5 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
+          >
+            <Download className="h-3.5 w-3.5" />
             HTML
-          </Button>
+          </button>
         </div>
       </div>
 
       {error && <Alert variant="danger">{error}</Alert>}
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-        <div className="lg:col-span-2 space-y-6">
+        <div className="lg:col-span-2 space-y-4">
           <Card>
             <CardHeader>
               <CardTitle>Generated Content</CardTitle>
             </CardHeader>
             <CardContent>
-              <pre className="whitespace-pre-wrap font-sans text-sm text-slate-300 bg-slate-900 rounded-lg p-4 max-h-[600px] overflow-y-auto">
+              <pre className="whitespace-pre-wrap font-sans text-sm text-zinc-300 bg-zinc-950 rounded-lg p-4 max-h-[500px] overflow-y-auto border border-zinc-800/50">
                 {generation.content}
               </pre>
             </CardContent>
@@ -191,7 +207,7 @@ export function ContentDetailClient({
               <CardTitle>Original Prompt</CardTitle>
             </CardHeader>
             <CardContent>
-              <p className="text-sm text-slate-300">{generation.prompt}</p>
+              <p className="text-sm text-zinc-400">{generation.prompt}</p>
             </CardContent>
           </Card>
 
@@ -200,11 +216,12 @@ export function ContentDetailClient({
             loading={regenerating}
             disabled={creditsLeft < 1}
           >
-            {regenerating ? "Regenerating..." : "Regenerate Content (1 credit)"}
+            <Sparkles className="h-4 w-4" />
+            Regenerate
           </Button>
         </div>
 
-        <div className="space-y-6">
+        <div className="space-y-4">
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
@@ -216,11 +233,13 @@ export function ContentDetailClient({
               <select
                 value={folderId}
                 onChange={(e) => setFolderId(e.target.value)}
-                className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-100"
+                className="w-full h-10 rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30"
               >
                 <option value="">No folder</option>
                 {folders.map((f) => (
-                  <option key={f.id} value={f.id}>{f.name}</option>
+                  <option key={f.id} value={f.id}>
+                    {f.name}
+                  </option>
                 ))}
               </select>
             </CardContent>
@@ -234,35 +253,45 @@ export function ContentDetailClient({
               </CardTitle>
             </CardHeader>
             <CardContent>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-1.5">
                 {tags.map((tag) => (
                   <button
                     key={tag.id}
                     onClick={() => toggleTag(tag.id)}
-                    className={`text-xs px-3 py-1 rounded-full border transition ${
+                    className={`text-[11px] px-2.5 py-1 rounded-full border transition-colors ${
                       selectedTags.includes(tag.id)
-                        ? "border-amber-500 bg-amber-500/20 text-amber-400"
-                        : "border-slate-700 text-slate-400 hover:border-slate-600"
+                        ? "border-amber-500/40 bg-amber-500/10 text-amber-500"
+                        : "border-zinc-800 text-zinc-500 hover:border-zinc-700"
                     }`}
                   >
                     {tag.name}
                   </button>
                 ))}
+                {tags.length === 0 && (
+                  <p className="text-xs text-zinc-600">No tags created</p>
+                )}
               </div>
-              {tags.length === 0 && (
-                <p className="text-xs text-slate-500">No tags created yet</p>
-              )}
             </CardContent>
           </Card>
 
-          <Button onClick={handleSaveMeta} loading={savingMeta} variant="secondary" className="w-full">
+          <Button
+            onClick={handleSaveMeta}
+            loading={savingMeta}
+            variant="secondary"
+            className="w-full"
+            size="sm"
+          >
             Save Organization
           </Button>
 
-          <Button onClick={handleDelete} variant="danger" loading={deleting} className="w-full">
+          <button
+            onClick={handleDelete}
+            disabled={deleting}
+            className="w-full flex items-center justify-center gap-2 px-4 py-2 rounded-lg border border-red-500/20 bg-red-500/5 text-red-400 text-sm font-medium hover:bg-red-500/10 transition-colors disabled:opacity-50"
+          >
             <Trash2 className="h-4 w-4" />
-            Delete Content
-          </Button>
+            Delete
+          </button>
         </div>
       </div>
     </div>

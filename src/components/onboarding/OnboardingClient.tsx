@@ -2,13 +2,21 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
-import { Button, Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui";
-import { Check, ArrowRight, Sparkles, CreditCard, Users, FileText, BarChart3 } from "lucide-react";
+import { Button, Card, CardContent } from "@/src/components/ui";
+import {
+  Check,
+  ArrowRight,
+  Sparkles,
+  CreditCard,
+  Users,
+  FileText,
+  BarChart3,
+} from "lucide-react";
 
 const STEPS = [
   {
     id: "welcome",
-    title: "Welcome to AI SaaS",
+    title: "Welcome to ContentForge",
     description: "Let's get you set up in just a few steps.",
     icon: Sparkles,
   },
@@ -39,7 +47,7 @@ const STEPS = [
   {
     id: "analytics",
     title: "Track Your Usage",
-    description: "Monitor your generations and credit usage from the analytics dashboard.",
+    description: "Monitor your generations and credit usage from analytics.",
     icon: BarChart3,
     action: "View Analytics",
     href: "/analytics",
@@ -75,7 +83,6 @@ export function OnboardingClient({
   async function handleNext() {
     const step = STEPS[currentStep];
     await completeStep(step.id);
-
     if (currentStep < STEPS.length - 1) {
       setCurrentStep(currentStep + 1);
     } else {
@@ -102,18 +109,18 @@ export function OnboardingClient({
   const progress = ((currentStep + 1) / STEPS.length) * 100;
 
   return (
-    <div className="min-h-[80vh] flex items-center justify-center">
-      <div className="max-w-lg w-full space-y-8">
+    <div className="min-h-[80vh] flex items-center justify-center animate-fade-in">
+      <div className="max-w-md w-full space-y-6">
         <div className="text-center">
-          <h1 className="text-3xl font-bold text-white mb-2">
-            Welcome, {userName}!
-          </h1>
-          <p className="text-slate-400">
+          <h2 className="text-2xl font-bold text-white tracking-tight">
+            Welcome, {userName}
+          </h2>
+          <p className="text-sm text-zinc-400 mt-1">
             Step {currentStep + 1} of {STEPS.length}
           </p>
-          <div className="mt-4 h-2 bg-slate-800 rounded-full overflow-hidden">
+          <div className="mt-3 h-1 rounded-full bg-zinc-800 overflow-hidden">
             <div
-              className="h-full bg-amber-500 rounded-full transition-all duration-500"
+              className="h-full rounded-full bg-amber-500 transition-all duration-300"
               style={{ width: `${progress}%` }}
             />
           </div>
@@ -122,36 +129,39 @@ export function OnboardingClient({
         <Card>
           <CardContent className="pt-8 pb-8">
             <div className="text-center space-y-4">
-              <div className="w-16 h-16 rounded-2xl bg-amber-600/20 flex items-center justify-center mx-auto">
-                <Icon className="h-8 w-8 text-amber-500" />
+              <div className="w-14 h-14 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center mx-auto">
+                <Icon className="h-7 w-7 text-amber-500" />
               </div>
-              <h2 className="text-xl font-bold text-white">{step.title}</h2>
-              <p className="text-slate-400">{step.description}</p>
-
+              <div>
+                <h3 className="text-lg font-semibold text-white">
+                  {step.title}
+                </h3>
+                <p className="text-sm text-zinc-400 mt-1">{step.description}</p>
+              </div>
               {completedSteps.includes(step.id) && (
-                <span className="inline-flex items-center gap-1 text-sm text-green-400">
-                  <Check className="h-4 w-4" /> Completed
+                <span className="inline-flex items-center gap-1 text-xs text-emerald-400">
+                  <Check className="h-3.5 w-3.5" /> Completed
                 </span>
               )}
             </div>
-
-            <div className="flex justify-center gap-3 mt-8">
-              <Button variant="ghost" onClick={handleSkip}>
+            <div className="flex justify-center gap-2 mt-8">
+              <Button variant="ghost" onClick={handleSkip} size="sm">
                 Skip All
               </Button>
               {step.href && (
                 <Button
                   variant="secondary"
                   onClick={() => router.push(step.href!)}
+                  size="sm"
                 >
                   {step.action}
                 </Button>
               )}
-              <Button onClick={handleNext} loading={loading}>
+              <Button onClick={handleNext} loading={loading} size="sm">
                 {currentStep < STEPS.length - 1 ? (
                   <>
                     Next
-                    <ArrowRight className="h-4 w-4" />
+                    <ArrowRight className="h-3.5 w-3.5" />
                   </>
                 ) : (
                   "Get Started"
@@ -161,17 +171,17 @@ export function OnboardingClient({
           </CardContent>
         </Card>
 
-        <div className="flex justify-center gap-2">
+        <div className="flex justify-center gap-1.5">
           {STEPS.map((s, i) => (
             <button
               key={s.id}
               onClick={() => setCurrentStep(i)}
-              className={`w-2.5 h-2.5 rounded-full transition ${
+              className={`w-2 h-2 rounded-full transition-colors ${
                 i === currentStep
                   ? "bg-amber-500"
                   : completedSteps.includes(s.id)
-                  ? "bg-green-500"
-                  : "bg-slate-700"
+                  ? "bg-emerald-500"
+                  : "bg-zinc-700"
               }`}
             />
           ))}

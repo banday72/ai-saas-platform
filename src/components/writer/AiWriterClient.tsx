@@ -15,7 +15,7 @@ import {
 } from "@/src/components/ui";
 import { Alert } from "@/src/components/ui/Alert";
 import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
-import { Copy, Check, Zap } from "lucide-react";
+import { Copy, Check, ArrowRight, Sparkles } from "lucide-react";
 
 const TYPES = {
   blog: "Blog Post",
@@ -28,16 +28,6 @@ const TYPES = {
 } as const;
 
 type ContentType = keyof typeof TYPES;
-
-const TYPE_GRADIENTS: Record<ContentType, string> = {
-  blog: "from-amber-500 to-orange-600",
-  social: "from-blue-500 to-indigo-600",
-  email: "from-emerald-500 to-green-600",
-  ad: "from-rose-500 to-pink-600",
-  website: "from-violet-500 to-purple-600",
-  product: "from-cyan-500 to-teal-600",
-  seo: "from-fuchsia-500 to-purple-600",
-};
 
 interface Template {
   id: string;
@@ -60,9 +50,11 @@ export function AiWriterClient({
   const [prompt, setPrompt] = useState("");
   const [tone, setTone] = useState("");
   const [loading, setLoading] = useState(false);
-  const [result, setResult] = useState<{ content: string; title: string; id: string } | null>(
-    null
-  );
+  const [result, setResult] = useState<{
+    content: string;
+    title: string;
+    id: string;
+  } | null>(null);
   const [error, setError] = useState<string | null>(null);
   const [copied, setCopied] = useState(false);
   const [templates, setTemplates] = useState<Template[]>([]);
@@ -103,23 +95,17 @@ export function AiWriterClient({
     setResult(null);
 
     try {
-      const combinedPrompt = tone
-        ? `${prompt}\n\nTone: ${tone}`
-        : prompt;
-
+      const combinedPrompt = tone ? `${prompt}\n\nTone: ${tone}` : prompt;
       const res = await fetch("/api/ai/generate", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ type, prompt: combinedPrompt }),
       });
-
       const data = await res.json();
-
       if (!res.ok) {
         setError(data.error ?? "Something went wrong. Please try again.");
         return;
       }
-
       setResult({ content: data.content, title: data.title, id: data.id });
     } catch {
       setError("Something went wrong. Please try again.");
@@ -136,47 +122,50 @@ export function AiWriterClient({
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
+      {/* Header */}
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">AI Writer</h1>
-          <p className="text-slate-400 text-sm mt-1">
-            Generate high-quality content for your clients in seconds.
+          <h2 className="text-2xl font-bold text-white tracking-tight">
+            AI Writer
+          </h2>
+          <p className="text-sm text-zinc-400 mt-0.5">
+            Generate high-quality content in seconds.
           </p>
         </div>
-        <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-sm text-slate-300">
-            <Zap className="h-3.5 w-3.5 text-amber-400" />
-            1 credit per generation
+        <div className="flex items-center gap-2 text-sm">
+          <span className="px-2.5 py-1 rounded-lg bg-zinc-800 border border-zinc-700/50 text-zinc-400 font-medium">
+            1 credit / generation
           </span>
-          <span className="rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 px-3 py-1 text-sm font-medium text-amber-400">
-            {creditsLeft} credits left
+          <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 font-medium">
+            {creditsLeft} left
           </span>
         </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        {/* Form */}
         <Card>
           <CardHeader>
             <CardTitle>Create Content</CardTitle>
             <CardDescription>
-              Select a content type and describe what you need.
+              Select a type and describe what you need.
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-5">
+            <form onSubmit={handleSubmit} className="space-y-4">
               {templates.length > 0 && (
                 <div>
-                  <Label>Use Template (optional)</Label>
+                  <Label>Template</Label>
                   <select
                     value={selectedTemplate}
                     onChange={(e) => handleTemplateSelect(e.target.value)}
-                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-slate-100 focus:border-amber-500/50 focus:outline-none transition-all"
+                    className="w-full h-10 rounded-lg border border-zinc-800 bg-zinc-900 px-3 text-sm text-white focus:outline-none focus:ring-2 focus:ring-amber-500/30"
                   >
                     <option value="">No template</option>
                     {templates.map((tpl) => (
                       <option key={tpl.id} value={tpl.id}>
-                        {tpl.name} ({TYPES[tpl.type as ContentType] ?? tpl.type})
+                        {tpl.name}
                       </option>
                     ))}
                   </select>
@@ -185,16 +174,16 @@ export function AiWriterClient({
 
               <div>
                 <Label>Content Type</Label>
-                <div className="grid grid-cols-2 sm:grid-cols-3 gap-2">
+                <div className="grid grid-cols-2 sm:grid-cols-3 gap-1.5">
                   {(Object.keys(TYPES) as ContentType[]).map((key) => (
                     <button
                       key={key}
                       type="button"
                       onClick={() => setType(key)}
-                      className={`px-3 py-2.5 rounded-xl text-sm font-medium border transition-all ${
+                      className={`px-3 py-2 rounded-lg text-xs font-medium border transition-colors ${
                         type === key
-                          ? `bg-gradient-to-r ${TYPE_GRADIENTS[key]} border-transparent text-white shadow-lg`
-                          : "bg-white/5 border-white/10 text-slate-300 hover:border-white/20 hover:bg-white/10"
+                          ? "bg-amber-500/10 border-amber-500/30 text-amber-500"
+                          : "bg-zinc-900 border-zinc-800 text-zinc-400 hover:border-zinc-700 hover:text-zinc-300"
                       }`}
                     >
                       {TYPES[key]}
@@ -209,7 +198,7 @@ export function AiWriterClient({
                   id="prompt"
                   value={prompt}
                   onChange={(e) => setPrompt(e.target.value)}
-                  rows={5}
+                  rows={4}
                   placeholder="e.g. 10 tips for growing a digital marketing agency in 2025"
                   required
                 />
@@ -229,63 +218,84 @@ export function AiWriterClient({
 
               {creditsLeft < 1 && (
                 <Alert variant="warning">
-                  You have no credits left.{" "}
-                  <a href="/billing" className="underline font-medium">Upgrade your plan</a>
+                  No credits left.{" "}
+                  <a href="/billing" className="underline font-medium">
+                    Upgrade your plan
+                  </a>
                 </Alert>
               )}
 
-              <Button type="submit" loading={loading} disabled={creditsLeft < 1} className="w-full">
-                {loading ? "Generating..." : "Generate Content (1 credit)"}
+              <Button
+                type="submit"
+                loading={loading}
+                disabled={creditsLeft < 1}
+                className="w-full"
+              >
+                {loading ? (
+                  "Generating..."
+                ) : (
+                  <>
+                    <Sparkles className="h-4 w-4" />
+                    Generate Content
+                  </>
+                )}
               </Button>
             </form>
           </CardContent>
         </Card>
 
+        {/* Output */}
         <Card>
           <CardHeader>
             <CardTitle>Output</CardTitle>
-            <CardDescription>
-              Your generated content will appear here.
-            </CardDescription>
+            <CardDescription>Your generated content appears here.</CardDescription>
           </CardHeader>
           <CardContent>
             {loading ? (
-              <div className="flex flex-col items-center justify-center py-16 text-slate-400">
-                <LoadingSpinner className="h-8 w-8 mb-3" />
-                <p className="text-sm">Generating your content...</p>
+              <div className="flex flex-col items-center justify-center py-16">
+                <LoadingSpinner className="h-8 w-8 text-zinc-500 mb-3" />
+                <p className="text-sm text-zinc-500">Generating content...</p>
               </div>
             ) : result ? (
-              <div>
-                <div className="flex items-start justify-between gap-4 mb-3">
-                  <h3 className="font-semibold text-white">{result.title}</h3>
-                  <div className="flex gap-1">
+              <div className="space-y-3">
+                <div className="flex items-start justify-between gap-3">
+                  <h4 className="text-sm font-semibold text-white">
+                    {result.title}
+                  </h4>
+                  <div className="flex gap-1 shrink-0">
                     <button
                       onClick={handleCopy}
-                      className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/10 transition-all"
+                      className="inline-flex items-center gap-1 rounded-lg border border-zinc-800 px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
                     >
                       {copied ? (
-                        <Check className="h-3.5 w-3.5 text-emerald-400" />
+                        <Check className="h-3 w-3 text-emerald-400" />
                       ) : (
-                        <Copy className="h-3.5 w-3.5" />
+                        <Copy className="h-3 w-3" />
                       )}
                       {copied ? "Copied" : "Copy"}
                     </button>
                     <a
                       href={`/content/${result.id}`}
-                      className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/10 transition-all"
+                      className="inline-flex items-center gap-1 rounded-lg border border-zinc-800 px-2 py-1 text-xs text-zinc-400 hover:bg-zinc-800 hover:text-white transition-colors"
                     >
                       View
                     </a>
                   </div>
                 </div>
-                <pre className="whitespace-pre-wrap font-sans text-sm text-slate-300 rounded-xl p-4 max-h-[480px] overflow-y-auto" style={{ background: "rgba(0,0,0,0.3)" }}>
+                <pre className="whitespace-pre-wrap font-sans text-sm text-zinc-300 bg-zinc-950 rounded-lg p-4 max-h-[480px] overflow-y-auto border border-zinc-800/50">
                   {result.content}
                 </pre>
               </div>
             ) : (
-              <div className="flex items-center justify-center py-16 text-slate-500">
-                <p className="text-sm">
-                  No content generated yet. Fill in the form and click generate.
+              <div className="flex flex-col items-center justify-center py-16 text-center">
+                <div className="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700/50 flex items-center justify-center mb-3">
+                  <Sparkles className="h-5 w-5 text-zinc-600" />
+                </div>
+                <p className="text-sm text-zinc-500">
+                  No content generated yet.
+                </p>
+                <p className="text-xs text-zinc-600 mt-1">
+                  Fill in the form and click generate.
                 </p>
               </div>
             )}
@@ -293,26 +303,30 @@ export function AiWriterClient({
         </Card>
       </div>
 
+      {/* History */}
       {history.length > 0 && (
         <Card>
           <CardHeader>
             <CardTitle>Recent Generations</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="divide-y divide-white/5">
+            <div className="divide-y divide-zinc-800/80">
               {history.slice(0, 5).map((item) => (
                 <a
                   key={item.id}
                   href={`/content/${item.id}`}
-                  className="flex items-center justify-between py-3 hover:bg-white/5 -mx-6 px-6 transition-all"
+                  className="flex items-center justify-between py-3 -mx-6 px-6 hover:bg-zinc-800/30 transition-colors"
                 >
-                  <div>
-                    <p className="text-sm font-medium text-white">{item.title}</p>
-                    <p className="text-xs text-slate-500">
+                  <div className="min-w-0">
+                    <p className="text-sm font-medium text-white truncate">
+                      {item.title}
+                    </p>
+                    <p className="text-xs text-zinc-500 mt-0.5">
                       {TYPES[item.type as ContentType] ?? item.type} ·{" "}
                       {new Date(item.createdAt).toLocaleDateString()}
                     </p>
                   </div>
+                  <ArrowRight className="h-4 w-4 text-zinc-600 shrink-0 ml-3" />
                 </a>
               ))}
             </div>

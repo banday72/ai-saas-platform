@@ -10,7 +10,7 @@ export function Card({
   return (
     <div
       className={cn(
-        "rounded-2xl border border-white/5 bg-white/[0.02] backdrop-blur-sm",
+        "rounded-xl border border-zinc-800 bg-zinc-900/50",
         className
       )}
     >
@@ -19,8 +19,16 @@ export function Card({
   );
 }
 
-export function CardHeader({ children }: { children: React.ReactNode }) {
-  return <div className="px-6 pt-6 pb-3">{children}</div>;
+export function CardHeader({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div className={cn("px-6 pt-6 pb-2", className)}>{children}</div>
+  );
 }
 
 export function CardTitle({
@@ -31,12 +39,26 @@ export function CardTitle({
   children: React.ReactNode;
 }) {
   return (
-    <h3 className={cn("text-lg font-bold text-white", className)}>{children}</h3>
+    <h3
+      className={cn("text-base font-semibold text-white tracking-tight", className)}
+    >
+      {children}
+    </h3>
   );
 }
 
-export function CardDescription({ children }: { children: React.ReactNode }) {
-  return <p className="text-sm text-slate-400 mt-1">{children}</p>;
+export function CardDescription({
+  className,
+  children,
+}: {
+  className?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <p className={cn("text-sm text-zinc-400 mt-0.5", className)}>
+      {children}
+    </p>
+  );
 }
 
 export function CardContent({

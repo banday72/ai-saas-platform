@@ -5,15 +5,17 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "AI SaaS - Content Generation for Agencies",
-    template: "%s | AI SaaS",
+    default: "ContentForge AI — AI Content Platform for Agencies",
+    template: "%s — ContentForge AI",
   },
-  description: "Powerful AI tools for digital marketing agencies. Generate blog posts, social media content, emails, and ad copy in seconds.",
-  keywords: ["AI", "content generation", "marketing", "agency", "blog", "social media", "copywriting"],
+  description:
+    "Generate high-quality blog posts, social media content, emails, and ad copy with AI. Built for marketing agencies.",
   openGraph: {
-    title: "AI SaaS - Content Generation for Agencies",
-    description: "Powerful AI tools for digital marketing agencies",
+    title: "ContentForge AI — AI Content Platform for Agencies",
+    description:
+      "Generate high-quality blog posts, social media content, emails, and ad copy with AI.",
     type: "website",
+    siteName: "ContentForge AI",
   },
 };
 
@@ -25,7 +27,7 @@ export default function RootLayout({
   return (
     <ClerkProvider>
       <html lang="en" suppressHydrationWarning>
-        <body className="antialiased">
+        <body>
           <Providers>{children}</Providers>
         </body>
       </html>

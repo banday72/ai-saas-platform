@@ -28,14 +28,14 @@ const TYPE_LABELS: Record<string, string> = {
   seo: "SEO Content",
 };
 
-const TYPE_GRADIENTS: Record<string, string> = {
-  blog: "from-amber-500 to-orange-600",
-  social: "from-blue-500 to-indigo-600",
-  email: "from-emerald-500 to-green-600",
-  ad: "from-rose-500 to-pink-600",
-  website: "from-violet-500 to-purple-600",
-  product: "from-cyan-500 to-teal-600",
-  seo: "from-fuchsia-500 to-purple-600",
+const TYPE_COLORS: Record<string, string> = {
+  blog: "#f59e0b",
+  social: "#3b82f6",
+  email: "#10b981",
+  ad: "#ef4444",
+  website: "#8b5cf6",
+  product: "#ec4899",
+  seo: "#06b6d4",
 };
 
 export function AnalyticsClient() {
@@ -45,8 +45,8 @@ export function AnalyticsClient() {
   useEffect(() => {
     fetch("/api/analytics")
       .then((res) => res.json())
-      .then((data) => {
-        setData(data);
+      .then((d) => {
+        setData(d);
         setLoading(false);
       })
       .catch(() => setLoading(false));
@@ -55,111 +55,153 @@ export function AnalyticsClient() {
   if (loading) {
     return (
       <div className="flex items-center justify-center py-20">
-        <LoadingSpinner className="h-8 w-8" />
+        <LoadingSpinner className="h-6 w-6 text-zinc-500" />
       </div>
     );
   }
 
   if (!data) {
-    return <div className="text-center py-20 text-slate-400">Failed to load analytics</div>;
+    return (
+      <div className="text-center py-20 text-zinc-500 text-sm">
+        Failed to load analytics
+      </div>
+    );
   }
 
   const maxDaily = Math.max(...data.dailyUsage.map((d) => d.count), 1);
-  const maxType = Math.max(...data.generationsByType.map((t) => t.count), 1);
+  const maxType = Math.max(
+    ...data.generationsByType.map((t) => t.count),
+    1
+  );
 
   const statCards = [
-    { label: "Total Generations", value: data.stats.totalGenerations, icon: TrendingUp, gradient: "from-violet-500 to-purple-600" },
-    { label: "Last 30 Days", value: data.stats.generationsLast30Days, icon: BarChart3, gradient: "from-amber-500 to-orange-600" },
-    { label: "Last 7 Days", value: data.stats.generationsLast7Days, icon: Clock, gradient: "from-cyan-500 to-blue-600" },
     {
-      label: "Credits Used (30d)",
-      value: `${data.stats.creditsUsedLast30} / ${data.stats.monthlyCredits}`,
+      label: "Total",
+      value: data.stats.totalGenerations,
+      icon: TrendingUp,
+      color: "text-violet-400",
+      bg: "bg-violet-500/10",
+      border: "border-violet-500/20",
+    },
+    {
+      label: "30 Days",
+      value: data.stats.generationsLast30Days,
+      icon: BarChart3,
+      color: "text-amber-500",
+      bg: "bg-amber-500/10",
+      border: "border-amber-500/20",
+    },
+    {
+      label: "7 Days",
+      value: data.stats.generationsLast7Days,
+      icon: Clock,
+      color: "text-cyan-400",
+      bg: "bg-cyan-500/10",
+      border: "border-cyan-500/20",
+    },
+    {
+      label: "Credits (30d)",
+      value: `${data.stats.creditsUsedLast30}/${data.stats.monthlyCredits}`,
       icon: Zap,
-      gradient: "from-emerald-500 to-green-600",
+      color: "text-emerald-400",
+      bg: "bg-emerald-500/10",
+      border: "border-emerald-500/20",
     },
   ];
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 animate-fade-in">
       <div>
-        <h1 className="text-2xl font-bold text-white">Analytics</h1>
-        <p className="text-slate-400 text-sm mt-1">
-          Track your content generation usage over time
+        <h2 className="text-2xl font-bold text-white tracking-tight">
+          Analytics
+        </h2>
+        <p className="text-sm text-zinc-400 mt-0.5">
+          Track your content generation usage
         </p>
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
         {statCards.map((stat) => {
           const Icon = stat.icon;
           return (
-            <Card key={stat.label}>
-              <CardContent className="pt-6">
-                <div className="flex items-center justify-between mb-3">
-                  <p className="text-slate-400 text-sm">{stat.label}</p>
-                  <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center`}>
-                    <Icon className="h-4 w-4 text-white" />
-                  </div>
+            <div
+              key={stat.label}
+              className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30"
+            >
+              <div className="flex items-center justify-between mb-2">
+                <span className="text-[11px] text-zinc-500 font-medium uppercase tracking-wider">
+                  {stat.label}
+                </span>
+                <div
+                  className={`w-7 h-7 rounded-lg ${stat.bg} border ${stat.border} flex items-center justify-center`}
+                >
+                  <Icon className={`h-3.5 w-3.5 ${stat.color}`} />
                 </div>
-                <p className={`text-3xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>{stat.value}</p>
-              </CardContent>
-            </Card>
+              </div>
+              <p className="text-xl font-bold text-white">{stat.value}</p>
+            </div>
           );
         })}
       </div>
 
       <Card>
         <CardHeader>
-          <CardTitle>Daily Usage (Last 30 Days)</CardTitle>
+          <CardTitle>Daily Usage</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="flex items-end gap-1 h-40">
+          <div className="flex items-end gap-px h-32">
             {data.dailyUsage.map((day, i) => (
               <div
                 key={i}
-                className="flex-1 flex flex-col items-center gap-1 group"
-                title={`${day.date}: ${day.count} credits`}
+                className="flex-1 group relative"
+                title={`${day.date}: ${day.count}`}
               >
                 <div
-                  className="w-full rounded-t-lg bg-gradient-to-t from-amber-600 to-amber-400 transition-all hover:from-amber-500 hover:to-amber-300"
+                  className="w-full rounded-t bg-amber-500/80 hover:bg-amber-400 transition-colors"
                   style={{
                     height: `${(day.count / maxDaily) * 100}%`,
-                    minHeight: day.count > 0 ? "4px" : "0px",
+                    minHeight: day.count > 0 ? "3px" : "0px",
                   }}
                 />
               </div>
             ))}
           </div>
-          <div className="flex justify-between mt-2 text-xs text-slate-500">
+          <div className="flex justify-between mt-2 text-[10px] text-zinc-600">
             <span>{data.dailyUsage[0]?.date}</span>
-            <span>{data.dailyUsage[data.dailyUsage.length - 1]?.date}</span>
+            <span>
+              {data.dailyUsage[data.dailyUsage.length - 1]?.date}
+            </span>
           </div>
         </CardContent>
       </Card>
 
       <Card>
         <CardHeader>
-          <CardTitle>Content Types (Last 30 Days)</CardTitle>
+          <CardTitle>By Content Type</CardTitle>
         </CardHeader>
         <CardContent>
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {data.generationsByType.map((item) => (
               <div key={item.type} className="flex items-center gap-3">
-                <span className="text-sm text-slate-300 w-32 truncate">
+                <span className="text-xs text-zinc-400 w-28 truncate">
                   {TYPE_LABELS[item.type] ?? item.type}
                 </span>
-                <div className="flex-1 h-6 bg-white/5 rounded-full overflow-hidden">
+                <div className="flex-1 h-5 rounded bg-zinc-800/50 overflow-hidden">
                   <div
-                    className={`h-full rounded-full bg-gradient-to-r ${TYPE_GRADIENTS[item.type] || "from-amber-500 to-orange-600"} transition-all`}
+                    className="h-full rounded transition-all"
                     style={{
                       width: `${(item.count / maxType) * 100}%`,
+                      backgroundColor: TYPE_COLORS[item.type] || "#f59e0b",
                     }}
                   />
                 </div>
-                <span className="text-sm text-slate-400 w-12 text-right font-medium">{item.count}</span>
+                <span className="text-xs text-zinc-500 w-8 text-right font-medium">
+                  {item.count}
+                </span>
               </div>
             ))}
             {data.generationsByType.length === 0 && (
-              <p className="text-slate-500 text-sm">No data yet</p>
+              <p className="text-xs text-zinc-500">No data yet</p>
             )}
           </div>
         </CardContent>

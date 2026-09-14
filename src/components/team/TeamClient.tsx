@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Label } from "@/src/components/ui";
 import { Alert } from "@/src/components/ui/Alert";
-import { Users, Plus, Mail, Crown } from "lucide-react";
+import { Users, Plus, Mail, Crown, UserPlus } from "lucide-react";
 
 interface TeamMemberUser {
   id: string;
@@ -45,8 +45,6 @@ export function TeamClient({
   const [error, setError] = useState<string | null>(null);
   const [success, setSuccess] = useState<string | null>(null);
 
-  const allTeams = ownedTeams;
-
   async function handleCreateTeam(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -61,7 +59,7 @@ export function TeamClient({
       if (res.ok) {
         setTeamName("");
         setShowCreate(false);
-        setSuccess("Team created successfully");
+        setSuccess("Team created");
         router.refresh();
       } else {
         setError(data.error || "Failed to create team");
@@ -87,10 +85,10 @@ export function TeamClient({
       const data = await res.json();
       if (res.ok) {
         setInviteEmail("");
-        setSuccess("Member invited successfully");
+        setSuccess("Member invited");
         router.refresh();
       } else {
-        setError(data.error || "Failed to invite member");
+        setError(data.error || "Failed to invite");
       }
     } catch {
       setError("Failed to invite member");
@@ -101,35 +99,37 @@ export function TeamClient({
 
   if (currentPlan === "free") {
     return (
-      <div className="space-y-6">
+      <div className="space-y-6 animate-fade-in">
         <div>
-          <h1 className="text-2xl font-bold text-white">Team</h1>
-          <p className="text-slate-400 text-sm mt-1">Manage your agency team</p>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Team</h2>
+          <p className="text-sm text-zinc-400 mt-0.5">Manage your agency team</p>
         </div>
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Users className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-            <h3 className="text-lg font-bold text-white mb-2">Team Features</h3>
-            <p className="text-slate-400 mb-4">
-              Upgrade to Pro or Business to create teams and collaborate with your agency.
-            </p>
-            <a href="/billing">
-              <Button>Upgrade Plan</Button>
-            </a>
-          </CardContent>
-        </Card>
+        <div className="p-12 rounded-xl border border-zinc-800/80 bg-zinc-900/30 text-center">
+          <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700/50 flex items-center justify-center mx-auto mb-4">
+            <Users className="h-6 w-6 text-zinc-500" />
+          </div>
+          <h3 className="text-sm font-semibold text-white mb-1">
+            Team Features
+          </h3>
+          <p className="text-xs text-zinc-400 mb-4">
+            Upgrade to Pro or Business to create teams.
+          </p>
+          <a href="/billing">
+            <Button size="sm">Upgrade Plan</Button>
+          </a>
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Team</h1>
-          <p className="text-slate-400 text-sm mt-1">Manage your agency team</p>
+          <h2 className="text-2xl font-bold text-white tracking-tight">Team</h2>
+          <p className="text-sm text-zinc-400 mt-0.5">Manage your agency team</p>
         </div>
-        <Button onClick={() => setShowCreate(true)}>
+        <Button onClick={() => setShowCreate(true)} size="sm">
           <Plus className="h-4 w-4" />
           New Team
         </Button>
@@ -140,11 +140,8 @@ export function TeamClient({
 
       {showCreate && (
         <Card>
-          <CardHeader>
-            <CardTitle>Create Team</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <form onSubmit={handleCreateTeam} className="flex gap-3">
+          <CardContent className="pt-5">
+            <form onSubmit={handleCreateTeam} className="flex gap-2">
               <Input
                 value={teamName}
                 onChange={(e) => setTeamName(e.target.value)}
@@ -152,80 +149,98 @@ export function TeamClient({
                 required
                 className="flex-1"
               />
-              <Button type="submit" loading={loading}>Create</Button>
-              <Button type="button" variant="ghost" onClick={() => setShowCreate(false)}>Cancel</Button>
+              <Button type="submit" loading={loading} size="sm">
+                Create
+              </Button>
+              <Button
+                type="button"
+                variant="ghost"
+                onClick={() => setShowCreate(false)}
+                size="sm"
+              >
+                Cancel
+              </Button>
             </form>
           </CardContent>
         </Card>
       )}
 
-      {allTeams.length === 0 ? (
-        <Card>
-          <CardContent className="py-12 text-center">
-            <Users className="h-12 w-12 text-slate-600 mx-auto mb-4" />
-            <p className="text-slate-400">No teams yet. Create one to start collaborating.</p>
-          </CardContent>
-        </Card>
+      {ownedTeams.length === 0 ? (
+        <div className="p-12 rounded-xl border border-zinc-800/80 bg-zinc-900/30 text-center">
+          <Users className="h-10 w-10 text-zinc-600 mx-auto mb-3" />
+          <p className="text-sm text-zinc-400">No teams yet</p>
+        </div>
       ) : (
-        allTeams.map((team) => (
+        ownedTeams.map((team) => (
           <Card key={team.id}>
             <CardHeader>
               <div className="flex items-center justify-between">
                 <div>
                   <CardTitle>{team.name}</CardTitle>
-                  <CardDescription>{team.members.length} member{team.members.length !== 1 ? "s" : ""}</CardDescription>
+                  <CardDescription>
+                    {team.members.length} member
+                    {team.members.length !== 1 ? "s" : ""}
+                  </CardDescription>
                 </div>
-                {team.ownerId && (
-                  <span className="text-xs text-amber-400 flex items-center gap-1">
-                    <Crown className="h-3 w-3" /> Owner
-                  </span>
-                )}
+                <Crown className="h-4 w-4 text-amber-500" />
               </div>
             </CardHeader>
             <CardContent>
-              <div className="space-y-4">
-                <div className="space-y-2">
-                  {team.members.map((member) => (
-                    <div key={member.id} className="flex items-center justify-between py-2 border-b border-slate-800 last:border-0">
-                      <div className="flex items-center gap-3">
-                        <div className="w-8 h-8 rounded-full bg-slate-700 flex items-center justify-center text-sm font-medium text-white">
-                          {member.user.name?.[0] || member.user.email[0].toUpperCase()}
-                        </div>
-                        <div>
-                          <p className="text-sm font-medium text-white">{member.user.name || member.user.email}</p>
-                          <p className="text-xs text-slate-500">{member.user.email}</p>
-                        </div>
+              <div className="space-y-3">
+                {team.members.map((member) => (
+                  <div
+                    key={member.id}
+                    className="flex items-center justify-between py-2 border-b border-zinc-800/50 last:border-0"
+                  >
+                    <div className="flex items-center gap-3">
+                      <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700/50 flex items-center justify-center text-xs font-medium text-zinc-400">
+                        {member.user.name?.[0] ||
+                          member.user.email[0].toUpperCase()}
                       </div>
-                      <span className={`text-xs px-2 py-0.5 rounded-full ${
-                        member.role === "owner"
-                          ? "bg-amber-500/20 text-amber-400"
-                          : "bg-slate-700 text-slate-300"
-                      }`}>
-                        {member.role}
-                      </span>
+                      <div>
+                        <p className="text-sm font-medium text-white">
+                          {member.user.name || member.user.email}
+                        </p>
+                        <p className="text-xs text-zinc-500">
+                          {member.user.email}
+                        </p>
+                      </div>
                     </div>
-                  ))}
-                </div>
-
-                {team.ownerId && (
-                  <div>
-                    <Label>Invite Member</Label>
-                    <form onSubmit={handleInvite} className="flex gap-2 mt-1">
-                      <input type="hidden" value={team.id} onChange={() => setInviteTeamId(team.id)} />
-                      <Input
-                        type="email"
-                        value={inviteTeamId === team.id ? inviteEmail : ""}
-                        onChange={(e) => { setInviteTeamId(team.id); setInviteEmail(e.target.value); }}
-                        placeholder="colleague@email.com"
-                        className="flex-1"
-                      />
-                      <Button type="submit" loading={loading} size="sm">
-                        <Mail className="h-4 w-4" />
-                        Invite
-                      </Button>
-                    </form>
+                    <span
+                      className={`text-[10px] px-2 py-0.5 rounded-full font-medium ${
+                        member.role === "owner"
+                          ? "bg-amber-500/10 text-amber-500 border border-amber-500/20"
+                          : "bg-zinc-800 text-zinc-400 border border-zinc-700/50"
+                      }`}
+                    >
+                      {member.role}
+                    </span>
                   </div>
-                )}
+                ))}
+
+                <div className="pt-2">
+                  <Label>Invite Member</Label>
+                  <form onSubmit={handleInvite} className="flex gap-2 mt-1">
+                    <input
+                      type="hidden"
+                      value={team.id}
+                      onChange={() => setInviteTeamId(team.id)}
+                    />
+                    <Input
+                      type="email"
+                      value={inviteTeamId === team.id ? inviteEmail : ""}
+                      onChange={(e) => {
+                        setInviteTeamId(team.id);
+                        setInviteEmail(e.target.value);
+                      }}
+                      placeholder="email@example.com"
+                      className="flex-1"
+                    />
+                    <Button type="submit" loading={loading} size="sm">
+                      <Mail className="h-3.5 w-3.5" />
+                    </Button>
+                  </form>
+                </div>
               </div>
             </CardContent>
           </Card>

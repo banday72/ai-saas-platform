@@ -10,31 +10,29 @@ import {
   CardTitle,
 } from "@/src/components/ui";
 import { Alert } from "@/src/components/ui/Alert";
-import { Check, Crown, Zap, Star } from "lucide-react";
+import { Check, Zap, Star, Crown } from "lucide-react";
 
 const PLANS_DATA = [
   {
     id: "free",
-    name: "Free",
+    name: "Starter",
     price: 0,
     credits: 10,
     features: ["10 credits / month", "Blog & social posts", "Basic support"],
-    gradient: "from-slate-500 to-slate-600",
     icon: Zap,
   },
   {
     id: "pro",
-    name: "Pro",
+    name: "Professional",
     price: 19,
     credits: 100,
     popular: true,
     features: [
       "100 credits / month",
-      "All content types",
+      "All 7 content types",
       "SEO optimization",
       "Priority support",
     ],
-    gradient: "from-amber-500 to-orange-600",
     icon: Star,
   },
   {
@@ -46,9 +44,8 @@ const PLANS_DATA = [
       "500 credits / month",
       "Everything in Pro",
       "Agency accounts",
-      "API access",
+      "REST API access",
     ],
-    gradient: "from-violet-500 to-purple-600",
     icon: Crown,
   },
 ];
@@ -109,19 +106,27 @@ export function BillingClient({
   }
 
   const creditsUsed = monthlyCredits - creditsRemaining;
-  const creditsPercent = monthlyCredits > 0 ? (creditsUsed / monthlyCredits) * 100 : 0;
+  const creditsPercent =
+    monthlyCredits > 0 ? (creditsUsed / monthlyCredits) * 100 : 0;
 
   return (
-    <div className="space-y-8">
+    <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">
         <div>
-          <h1 className="text-2xl font-bold text-white">Billing</h1>
-          <p className="text-slate-400 text-sm mt-1">
+          <h2 className="text-2xl font-bold text-white tracking-tight">
+            Billing
+          </h2>
+          <p className="text-sm text-zinc-400 mt-0.5">
             Manage your subscription and usage.
           </p>
         </div>
         {hasSubscription && (
-          <Button variant="secondary" onClick={openPortal} loading={portalLoading}>
+          <Button
+            variant="secondary"
+            onClick={openPortal}
+            loading={portalLoading}
+            size="sm"
+          >
             Manage Subscription
           </Button>
         )}
@@ -135,103 +140,116 @@ export function BillingClient({
             <CardTitle>Current Plan</CardTitle>
             <CardDescription>
               Your active subscription is{" "}
-              <span className="font-semibold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent capitalize">
+              <span className="font-semibold text-amber-500 capitalize">
                 {currentPlan}
               </span>
               .
             </CardDescription>
           </CardHeader>
           <CardContent>
-            <div className="space-y-3">
+            <div className="space-y-2">
               <div className="flex items-center justify-between text-sm">
-                <span className="text-slate-400">Credits this month</span>
+                <span className="text-zinc-400">Credits this month</span>
                 <span className="text-white font-medium">
                   {creditsUsed} / {monthlyCredits}
                 </span>
               </div>
-              <div className="h-3 bg-white/5 rounded-full overflow-hidden">
+              <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
                 <div
-                  className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all"
+                  className="h-full rounded-full bg-amber-500 transition-all"
                   style={{ width: `${Math.min(creditsPercent, 100)}%` }}
                 />
               </div>
-              <p className="text-xs text-slate-500">
-                {creditsRemaining} credits remaining
-              </p>
             </div>
           </CardContent>
         </Card>
       )}
 
       <div>
-        <h2 className="text-lg font-semibold text-white mb-4">Plans</h2>
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        <h3 className="text-base font-semibold text-white mb-4">Plans</h3>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
           {PLANS_DATA.map((plan) => {
             const isCurrent = currentPlan === plan.id;
             const Icon = plan.icon;
             return (
-              <Card
+              <div
                 key={plan.id}
-                className={`relative overflow-hidden ${
-                  plan.popular ? "border-amber-500/50" : ""
+                className={`relative p-5 rounded-xl border ${
+                  plan.popular
+                    ? "border-amber-500/40 bg-amber-500/5"
+                    : "border-zinc-800 bg-zinc-900/30"
                 }`}
               >
                 {plan.popular && (
-                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
+                  <span className="absolute -top-2 left-5 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-amber-500 text-black rounded-full">
+                    Popular
+                  </span>
                 )}
-                <CardHeader>
-                  <div className="flex items-center gap-2 mb-2">
-                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${plan.gradient} flex items-center justify-center`}>
-                      <Icon className="h-4 w-4 text-white" />
-                    </div>
-                    <CardTitle>{plan.name}</CardTitle>
+                <div className="flex items-center gap-2 mb-3">
+                  <div
+                    className={`w-8 h-8 rounded-lg flex items-center justify-center ${
+                      plan.popular
+                        ? "bg-amber-500/10 border border-amber-500/20"
+                        : "bg-zinc-800 border border-zinc-700/50"
+                    }`}
+                  >
+                    <Icon
+                      className={`h-4 w-4 ${
+                        plan.popular ? "text-amber-500" : "text-zinc-400"
+                      }`}
+                    />
                   </div>
-                  <CardDescription>
-                    <span className="text-3xl font-bold text-white">
-                      ${plan.price}
-                    </span>
-                    <span className="text-slate-400">/month</span>
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <ul className="space-y-2 mb-6">
-                    {plan.features.map((feature) => (
-                      <li
-                        key={feature}
-                        className="flex items-center gap-2 text-sm text-slate-300"
-                      >
-                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shrink-0">
-                          <Check className="h-3 w-3 text-white" />
-                        </div>
-                        {feature}
-                      </li>
-                    ))}
-                  </ul>
-                  {isCurrent ? (
-                    <Button className="w-full" variant="secondary" disabled>
-                      Current Plan
-                    </Button>
-                  ) : plan.id === "free" ? (
-                    <Button
-                      className="w-full"
-                      variant="secondary"
-                      onClick={() => openPortal()}
-                      loading={portalLoading}
+                  <span className="text-sm font-medium text-white">
+                    {plan.name}
+                  </span>
+                </div>
+                <div className="flex items-baseline gap-1 mb-4">
+                  <span className="text-2xl font-bold text-white">
+                    ${plan.price}
+                  </span>
+                  <span className="text-sm text-zinc-500">/mo</span>
+                </div>
+                <ul className="space-y-2 mb-5">
+                  {plan.features.map((f) => (
+                    <li
+                      key={f}
+                      className="flex items-center gap-2 text-xs text-zinc-400"
                     >
-                      Downgrade
-                    </Button>
-                  ) : (
-                    <Button
-                      className="w-full"
-                      onClick={() => startCheckout(plan.id)}
-                      loading={loadingPlan === plan.id}
-                      disabled={isCurrent}
-                    >
-                      Upgrade to {plan.name}
-                    </Button>
-                  )}
-                </CardContent>
-              </Card>
+                      <Check className="h-3.5 w-3.5 text-amber-500 shrink-0" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+                {isCurrent ? (
+                  <Button
+                    className="w-full"
+                    variant="secondary"
+                    disabled
+                    size="sm"
+                  >
+                    Current Plan
+                  </Button>
+                ) : plan.id === "free" ? (
+                  <Button
+                    className="w-full"
+                    variant="secondary"
+                    onClick={openPortal}
+                    loading={portalLoading}
+                    size="sm"
+                  >
+                    Downgrade
+                  </Button>
+                ) : (
+                  <Button
+                    className="w-full"
+                    onClick={() => startCheckout(plan.id)}
+                    loading={loadingPlan === plan.id}
+                    size="sm"
+                  >
+                    Upgrade
+                  </Button>
+                )}
+              </div>
             );
           })}
         </div>
