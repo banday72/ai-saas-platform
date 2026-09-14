@@ -4,7 +4,13 @@ import OpenAI from "openai";
 import { db } from "@/src/lib/db";
 import { getOrCreateUser, requireUserId } from "@/src/lib/dal";
 
-const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+let _openai: OpenAI | null = null;
+function getOpenAI() {
+  if (!_openai) {
+    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+  }
+  return _openai;
+}
 
 const PROMPTS: Record<string, string> = {
   blog: `You are an expert content marketer. Write a compelling, well-structured blog post about the topic provided. Include an engaging title (prefixed with "Title: "), a strong introduction, use headings, bullet points, and a clear conclusion. Write in a professional yet conversational tone.`,
@@ -48,7 +54,7 @@ export async function POST(req: Request) {
 
     let content: string;
     try {
-      const response = await openai.responses.create({
+      const response = await getOpenAI().responses.create({
         model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
         instructions,
         input: prompt,

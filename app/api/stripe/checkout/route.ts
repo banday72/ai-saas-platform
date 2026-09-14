@@ -31,7 +31,7 @@ export async function POST(req: Request) {
     let stripeCustomerId = dbUser.stripeId;
 
     if (!stripeCustomerId) {
-      const customer = await stripe.customers.create({
+      const customer = await stripe().customers.create({
         email: user.emailAddresses?.[0]?.emailAddress ?? undefined,
         name: user.firstName
           ? `${user.firstName} ${user.lastName ?? ""}`.trim()
@@ -45,7 +45,7 @@ export async function POST(req: Request) {
       });
     }
 
-    const session = await stripe.checkout.sessions.create({
+    const session = await stripe().checkout.sessions.create({
       customer: stripeCustomerId,
       line_items: [{ price: plan.stripePriceId, quantity: 1 }],
       mode: "subscription",
