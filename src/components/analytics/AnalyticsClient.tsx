@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui";
 import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
+import { TrendingUp, Zap, BarChart3, Clock } from "lucide-react";
 
 interface AnalyticsData {
   stats: {
@@ -27,14 +28,14 @@ const TYPE_LABELS: Record<string, string> = {
   seo: "SEO Content",
 };
 
-const TYPE_COLORS: Record<string, string> = {
-  blog: "#f59e0b",
-  social: "#3b82f6",
-  email: "#10b981",
-  ad: "#ef4444",
-  website: "#8b5cf6",
-  product: "#ec4899",
-  seo: "#06b6d4",
+const TYPE_GRADIENTS: Record<string, string> = {
+  blog: "from-amber-500 to-orange-600",
+  social: "from-blue-500 to-indigo-600",
+  email: "from-emerald-500 to-green-600",
+  ad: "from-rose-500 to-pink-600",
+  website: "from-violet-500 to-purple-600",
+  product: "from-cyan-500 to-teal-600",
+  seo: "from-fuchsia-500 to-purple-600",
 };
 
 export function AnalyticsClient() {
@@ -66,6 +67,18 @@ export function AnalyticsClient() {
   const maxDaily = Math.max(...data.dailyUsage.map((d) => d.count), 1);
   const maxType = Math.max(...data.generationsByType.map((t) => t.count), 1);
 
+  const statCards = [
+    { label: "Total Generations", value: data.stats.totalGenerations, icon: TrendingUp, gradient: "from-violet-500 to-purple-600" },
+    { label: "Last 30 Days", value: data.stats.generationsLast30Days, icon: BarChart3, gradient: "from-amber-500 to-orange-600" },
+    { label: "Last 7 Days", value: data.stats.generationsLast7Days, icon: Clock, gradient: "from-cyan-500 to-blue-600" },
+    {
+      label: "Credits Used (30d)",
+      value: `${data.stats.creditsUsedLast30} / ${data.stats.monthlyCredits}`,
+      icon: Zap,
+      gradient: "from-emerald-500 to-green-600",
+    },
+  ];
+
   return (
     <div className="space-y-8">
       <div>
@@ -76,22 +89,22 @@ export function AnalyticsClient() {
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
-        {[
-          { label: "Total Generations", value: data.stats.totalGenerations },
-          { label: "Last 30 Days", value: data.stats.generationsLast30Days },
-          { label: "Last 7 Days", value: data.stats.generationsLast7Days },
-          {
-            label: "Credits Used (30d)",
-            value: `${data.stats.creditsUsedLast30} / ${data.stats.monthlyCredits}`,
-          },
-        ].map((stat) => (
-          <Card key={stat.label}>
-            <CardContent className="pt-6">
-              <p className="text-slate-400 text-sm">{stat.label}</p>
-              <p className="text-3xl font-bold text-white mt-1">{stat.value}</p>
-            </CardContent>
-          </Card>
-        ))}
+        {statCards.map((stat) => {
+          const Icon = stat.icon;
+          return (
+            <Card key={stat.label}>
+              <CardContent className="pt-6">
+                <div className="flex items-center justify-between mb-3">
+                  <p className="text-slate-400 text-sm">{stat.label}</p>
+                  <div className={`w-9 h-9 rounded-xl bg-gradient-to-br ${stat.gradient} flex items-center justify-center`}>
+                    <Icon className="h-4 w-4 text-white" />
+                  </div>
+                </div>
+                <p className={`text-3xl font-bold bg-gradient-to-r ${stat.gradient} bg-clip-text text-transparent`}>{stat.value}</p>
+              </CardContent>
+            </Card>
+          );
+        })}
       </div>
 
       <Card>
@@ -103,11 +116,11 @@ export function AnalyticsClient() {
             {data.dailyUsage.map((day, i) => (
               <div
                 key={i}
-                className="flex-1 flex flex-col items-center gap-1"
+                className="flex-1 flex flex-col items-center gap-1 group"
                 title={`${day.date}: ${day.count} credits`}
               >
                 <div
-                  className="w-full bg-amber-500 rounded-t transition-all hover:bg-amber-400"
+                  className="w-full rounded-t-lg bg-gradient-to-t from-amber-600 to-amber-400 transition-all hover:from-amber-500 hover:to-amber-300"
                   style={{
                     height: `${(day.count / maxDaily) * 100}%`,
                     minHeight: day.count > 0 ? "4px" : "0px",
@@ -134,16 +147,15 @@ export function AnalyticsClient() {
                 <span className="text-sm text-slate-300 w-32 truncate">
                   {TYPE_LABELS[item.type] ?? item.type}
                 </span>
-                <div className="flex-1 h-6 bg-slate-900 rounded-full overflow-hidden">
+                <div className="flex-1 h-6 bg-white/5 rounded-full overflow-hidden">
                   <div
-                    className="h-full rounded-full transition-all"
+                    className={`h-full rounded-full bg-gradient-to-r ${TYPE_GRADIENTS[item.type] || "from-amber-500 to-orange-600"} transition-all`}
                     style={{
                       width: `${(item.count / maxType) * 100}%`,
-                      backgroundColor: TYPE_COLORS[item.type] || "#f59e0b",
                     }}
                   />
                 </div>
-                <span className="text-sm text-slate-400 w-12 text-right">{item.count}</span>
+                <span className="text-sm text-slate-400 w-12 text-right font-medium">{item.count}</span>
               </div>
             ))}
             {data.generationsByType.length === 0 && (

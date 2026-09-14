@@ -3,10 +3,10 @@ import { cn } from "@/src/lib/utils";
 type Variant = "info" | "success" | "warning" | "danger";
 
 const styles: Record<Variant, string> = {
-  info: "border-blue-500/50 bg-blue-500/10 text-blue-300",
-  success: "border-green-500/50 bg-green-500/10 text-green-300",
-  warning: "border-amber-500/50 bg-amber-500/10 text-amber-300",
-  danger: "border-red-500/50 bg-red-500/10 text-red-300",
+  info: "border-cyan-500/30 bg-gradient-to-r from-cyan-500/10 to-blue-500/10 text-cyan-300",
+  success: "border-emerald-500/30 bg-gradient-to-r from-emerald-500/10 to-green-500/10 text-emerald-300",
+  warning: "border-amber-500/30 bg-gradient-to-r from-amber-500/10 to-orange-500/10 text-amber-300",
+  danger: "border-red-500/30 bg-gradient-to-r from-red-500/10 to-rose-500/10 text-red-300",
 };
 
 export function Alert({
@@ -21,7 +21,7 @@ export function Alert({
   return (
     <div
       className={cn(
-        "rounded-lg border px-4 py-3 text-sm",
+        "rounded-xl border px-4 py-3 text-sm",
         styles[variant],
         className
       )}

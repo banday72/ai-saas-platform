@@ -2,6 +2,14 @@
 @tailwind components;
 @tailwind utilities;
 
+:root {
+  --brand-primary: #f59e0b;
+  --brand-secondary: #8b5cf6;
+  --brand-accent: #06b6d4;
+  --brand-success: #10b981;
+  --brand-danger: #ef4444;
+}
+
 * {
   margin: 0;
   padding: 0;
@@ -9,7 +17,7 @@
 }
 
 body {
-  background-color: #020617;
+  background: #0a0a1a;
   color: #f1f5f9;
   font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
   -webkit-font-smoothing: antialiased;
@@ -20,52 +28,24 @@ html {
   scroll-behavior: smooth;
 }
 
-.dark body {
-  background-color: #020617;
-  color: #f1f5f9;
+::selection {
+  background: rgba(245, 158, 11, 0.3);
+  color: #fff;
 }
 
-.light body {
-  background-color: #ffffff;
-  color: #1e293b;
+::-webkit-scrollbar {
+  width: 8px;
 }
 
-.light .bg-slate-900 {
-  background-color: #f8fafc;
+::-webkit-scrollbar-track {
+  background: #0a0a1a;
 }
 
-.light .bg-slate-800 {
-  background-color: #f1f5f9;
+::-webkit-scrollbar-thumb {
+  background: #2d2d4a;
+  border-radius: 4px;
 }
 
-.light .bg-slate-800\/50 {
-  background-color: rgba(241, 245, 249, 0.5);
-}
-
-.light .bg-slate-900\/50, .light .bg-slate-900 {
-  background-color: #f8fafc;
-}
-
-.light .border-slate-800 {
-  border-color: #e2e8f0;
-}
-
-.light .border-slate-700 {
-  border-color: #cbd5e1;
-}
-
-.light .text-white {
-  color: #0f172a;
-}
-
-.light .text-slate-100, .light .text-slate-200, .light .text-slate-300 {
-  color: #334155;
-}
-
-.light .text-slate-400 {
-  color: #64748b;
-}
-
-.light .text-slate-500 {
-  color: #94a3b8;
+::-webkit-scrollbar-thumb:hover {
+  background: #3d3d5c;
 }

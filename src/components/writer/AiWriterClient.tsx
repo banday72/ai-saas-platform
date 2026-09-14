@@ -29,22 +29,22 @@ const TYPES = {
 
 type ContentType = keyof typeof TYPES;
 
+const TYPE_GRADIENTS: Record<ContentType, string> = {
+  blog: "from-amber-500 to-orange-600",
+  social: "from-blue-500 to-indigo-600",
+  email: "from-emerald-500 to-green-600",
+  ad: "from-rose-500 to-pink-600",
+  website: "from-violet-500 to-purple-600",
+  product: "from-cyan-500 to-teal-600",
+  seo: "from-fuchsia-500 to-purple-600",
+};
+
 interface Template {
   id: string;
   name: string;
   type: string;
   prompt: string;
 }
-
-const CREDIT_COSTS: Record<ContentType, number> = {
-  blog: 1,
-  social: 1,
-  email: 1,
-  ad: 1,
-  website: 1,
-  product: 1,
-  seo: 1,
-};
 
 export function AiWriterClient({
   creditsLeft,
@@ -96,8 +96,6 @@ export function AiWriterClient({
     }
   }
 
-  const creditCost = CREDIT_COSTS[type] || 1;
-
   async function handleSubmit(e: React.FormEvent) {
     e.preventDefault();
     setLoading(true);
@@ -147,11 +145,11 @@ export function AiWriterClient({
           </p>
         </div>
         <div className="flex items-center gap-3">
-          <span className="flex items-center gap-1.5 rounded-full bg-slate-800 border border-slate-700 px-3 py-1 text-sm text-slate-300">
+          <span className="flex items-center gap-1.5 rounded-full bg-white/5 border border-white/10 px-3 py-1 text-sm text-slate-300">
             <Zap className="h-3.5 w-3.5 text-amber-400" />
-            {creditCost} credit{creditCost !== 1 ? "s" : ""} per generation
+            1 credit per generation
           </span>
-          <span className="rounded-full bg-amber-600/20 border border-amber-600/40 px-3 py-1 text-sm font-medium text-amber-400">
+          <span className="rounded-full bg-gradient-to-r from-amber-500/20 to-orange-500/20 border border-amber-500/30 px-3 py-1 text-sm font-medium text-amber-400">
             {creditsLeft} credits left
           </span>
         </div>
@@ -173,7 +171,7 @@ export function AiWriterClient({
                   <select
                     value={selectedTemplate}
                     onChange={(e) => handleTemplateSelect(e.target.value)}
-                    className="w-full rounded-lg border border-slate-700 bg-slate-900 px-4 py-2 text-sm text-slate-100 focus:border-amber-500 focus:outline-none"
+                    className="w-full rounded-xl border border-white/10 bg-white/5 px-4 py-2.5 text-sm text-slate-100 focus:border-amber-500/50 focus:outline-none transition-all"
                   >
                     <option value="">No template</option>
                     {templates.map((tpl) => (
@@ -193,10 +191,10 @@ export function AiWriterClient({
                       key={key}
                       type="button"
                       onClick={() => setType(key)}
-                      className={`px-3 py-2 rounded-lg text-sm font-medium border transition ${
+                      className={`px-3 py-2.5 rounded-xl text-sm font-medium border transition-all ${
                         type === key
-                          ? "bg-amber-600 border-amber-600 text-white"
-                          : "bg-slate-900 border-slate-700 text-slate-300 hover:border-slate-600"
+                          ? `bg-gradient-to-r ${TYPE_GRADIENTS[key]} border-transparent text-white shadow-lg`
+                          : "bg-white/5 border-white/10 text-slate-300 hover:border-white/20 hover:bg-white/10"
                       }`}
                     >
                       {TYPES[key]}
@@ -229,15 +227,15 @@ export function AiWriterClient({
 
               {error && <Alert variant="danger">{error}</Alert>}
 
-              {creditsLeft < creditCost && (
+              {creditsLeft < 1 && (
                 <Alert variant="warning">
-                  You need {creditCost} credit{creditCost !== 1 ? "s" : ""} but only have {creditsLeft}.{" "}
+                  You have no credits left.{" "}
                   <a href="/billing" className="underline font-medium">Upgrade your plan</a>
                 </Alert>
               )}
 
-              <Button type="submit" loading={loading} disabled={creditsLeft < creditCost} className="w-full">
-                {loading ? "Generating..." : `Generate Content (${creditCost} credit${creditCost !== 1 ? "s" : ""})`}
+              <Button type="submit" loading={loading} disabled={creditsLeft < 1} className="w-full">
+                {loading ? "Generating..." : "Generate Content (1 credit)"}
               </Button>
             </form>
           </CardContent>
@@ -263,10 +261,10 @@ export function AiWriterClient({
                   <div className="flex gap-1">
                     <button
                       onClick={handleCopy}
-                      className="shrink-0 inline-flex items-center gap-1 rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:bg-slate-700"
+                      className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/10 transition-all"
                     >
                       {copied ? (
-                        <Check className="h-3.5 w-3.5 text-green-400" />
+                        <Check className="h-3.5 w-3.5 text-emerald-400" />
                       ) : (
                         <Copy className="h-3.5 w-3.5" />
                       )}
@@ -274,13 +272,13 @@ export function AiWriterClient({
                     </button>
                     <a
                       href={`/content/${result.id}`}
-                      className="shrink-0 inline-flex items-center gap-1 rounded-md border border-slate-700 px-2 py-1 text-xs text-slate-300 hover:bg-slate-700"
+                      className="shrink-0 inline-flex items-center gap-1 rounded-lg border border-white/10 px-2.5 py-1 text-xs text-slate-300 hover:bg-white/10 transition-all"
                     >
                       View
                     </a>
                   </div>
                 </div>
-                <pre className="whitespace-pre-wrap font-sans text-sm text-slate-300 bg-slate-900 rounded-lg p-4 max-h-[480px] overflow-y-auto">
+                <pre className="whitespace-pre-wrap font-sans text-sm text-slate-300 rounded-xl p-4 max-h-[480px] overflow-y-auto" style={{ background: "rgba(0,0,0,0.3)" }}>
                   {result.content}
                 </pre>
               </div>
@@ -301,12 +299,12 @@ export function AiWriterClient({
             <CardTitle>Recent Generations</CardTitle>
           </CardHeader>
           <CardContent>
-            <div className="divide-y divide-slate-700">
+            <div className="divide-y divide-white/5">
               {history.slice(0, 5).map((item) => (
                 <a
                   key={item.id}
                   href={`/content/${item.id}`}
-                  className="flex items-center justify-between py-3 hover:bg-slate-800/50 -mx-6 px-6 transition"
+                  className="flex items-center justify-between py-3 hover:bg-white/5 -mx-6 px-6 transition-all"
                 >
                   <div>
                     <p className="text-sm font-medium text-white">{item.title}</p>

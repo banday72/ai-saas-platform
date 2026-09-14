@@ -10,7 +10,7 @@ import {
   CardTitle,
 } from "@/src/components/ui";
 import { Alert } from "@/src/components/ui/Alert";
-import { Check } from "lucide-react";
+import { Check, Crown, Zap, Star } from "lucide-react";
 
 const PLANS_DATA = [
   {
@@ -19,6 +19,8 @@ const PLANS_DATA = [
     price: 0,
     credits: 10,
     features: ["10 credits / month", "Blog & social posts", "Basic support"],
+    gradient: "from-slate-500 to-slate-600",
+    icon: Zap,
   },
   {
     id: "pro",
@@ -32,6 +34,8 @@ const PLANS_DATA = [
       "SEO optimization",
       "Priority support",
     ],
+    gradient: "from-amber-500 to-orange-600",
+    icon: Star,
   },
   {
     id: "business",
@@ -44,6 +48,8 @@ const PLANS_DATA = [
       "Agency accounts",
       "API access",
     ],
+    gradient: "from-violet-500 to-purple-600",
+    icon: Crown,
   },
 ];
 
@@ -129,7 +135,7 @@ export function BillingClient({
             <CardTitle>Current Plan</CardTitle>
             <CardDescription>
               Your active subscription is{" "}
-              <span className="font-semibold text-white capitalize">
+              <span className="font-semibold bg-gradient-to-r from-amber-400 to-orange-500 bg-clip-text text-transparent capitalize">
                 {currentPlan}
               </span>
               .
@@ -143,13 +149,10 @@ export function BillingClient({
                   {creditsUsed} / {monthlyCredits}
                 </span>
               </div>
-              <div className="h-2 bg-slate-900 rounded-full overflow-hidden">
+              <div className="h-3 bg-white/5 rounded-full overflow-hidden">
                 <div
-                  className="h-full rounded-full transition-all"
-                  style={{
-                    width: `${Math.min(creditsPercent, 100)}%`,
-                    backgroundColor: creditsPercent > 80 ? "#ef4444" : "#f59e0b",
-                  }}
+                  className="h-full rounded-full bg-gradient-to-r from-amber-500 to-orange-500 transition-all"
+                  style={{ width: `${Math.min(creditsPercent, 100)}%` }}
                 />
               </div>
               <p className="text-xs text-slate-500">
@@ -165,20 +168,24 @@ export function BillingClient({
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
           {PLANS_DATA.map((plan) => {
             const isCurrent = currentPlan === plan.id;
+            const Icon = plan.icon;
             return (
               <Card
                 key={plan.id}
-                className={`relative ${
-                  plan.popular ? "border-amber-500" : ""
+                className={`relative overflow-hidden ${
+                  plan.popular ? "border-amber-500/50" : ""
                 }`}
               >
                 {plan.popular && (
-                  <span className="absolute -top-3 left-1/2 -translate-x-1/2 rounded-full bg-amber-600 px-3 py-0.5 text-xs font-bold text-white">
-                    Most Popular
-                  </span>
+                  <div className="absolute top-0 left-0 right-0 h-1 bg-gradient-to-r from-amber-500 to-orange-500" />
                 )}
                 <CardHeader>
-                  <CardTitle>{plan.name}</CardTitle>
+                  <div className="flex items-center gap-2 mb-2">
+                    <div className={`w-8 h-8 rounded-lg bg-gradient-to-br ${plan.gradient} flex items-center justify-center`}>
+                      <Icon className="h-4 w-4 text-white" />
+                    </div>
+                    <CardTitle>{plan.name}</CardTitle>
+                  </div>
                   <CardDescription>
                     <span className="text-3xl font-bold text-white">
                       ${plan.price}
@@ -193,7 +200,9 @@ export function BillingClient({
                         key={feature}
                         className="flex items-center gap-2 text-sm text-slate-300"
                       >
-                        <Check className="h-4 w-4 text-green-400 shrink-0" />
+                        <div className="w-5 h-5 rounded-full bg-gradient-to-br from-emerald-500 to-green-600 flex items-center justify-center shrink-0">
+                          <Check className="h-3 w-3 text-white" />
+                        </div>
                         {feature}
                       </li>
                     ))}
