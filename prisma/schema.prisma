@@ -20,14 +20,21 @@ model User {
   credits           Int        @default(0)
   monthlyCredits    Int        @default(0)
   monthlyResetDate  DateTime?
+  apiKey            String?    @unique
   createdAt         DateTime   @default(now())
   updatedAt         DateTime   @updatedAt
-  
+
   generations       Generation[]
   usageHistory      UsageHistory[]
   billingHistory    BillingHistory[]
-  
+  templates         Template[]
+  folders           Folder[]
+  tags              Tag[]
+  teamMemberships   TeamMember[]
+  ownedTeams        Team[]
+
   @@index([clerkId])
+  @@index([apiKey])
 }
 
 model Generation {
@@ -39,13 +46,18 @@ model Generation {
   prompt      String   @db.Text
   creditsUsed Int      @default(10)
   status      String   @default("completed")
+  folderId    String?
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
-  
+
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+  folder      Folder?  @relation(fields: [folderId], references: [id], onDelete: SetNull)
+  tags        GenerationTag[]
+
   @@index([userId])
   @@index([createdAt])
+  @@index([type])
+  @@index([folderId])
 }
 
 model UsageHistory {
@@ -54,10 +66,11 @@ model UsageHistory {
   type      String
   amount    Int      @default(1)
   createdAt DateTime @default(now())
-  
+
   user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([userId])
+  @@index([createdAt])
 }
 
 model BillingHistory {
@@ -70,8 +83,103 @@ model BillingHistory {
   plan        String
   period      String
   createdAt   DateTime @default(now())
-  
+
   user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  
+
   @@index([userId])
+}
+
+model Template {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  description String?
+  type        String
+  prompt      String   @db.Text
+  isPublic    Boolean  @default(false)
+  usageCount  Int      @default(0)
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@index([userId])
+  @@index([isPublic])
+}
+
+model Folder {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  color       String?  @default("#f59e0b")
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  user        User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generations Generation[]
+
+  @@index([userId])
+}
+
+model Tag {
+  id          String   @id @default(cuid())
+  userId      String
+  name        String
+  color       String?  @default("#6366f1")
+  createdAt   DateTime @default(now())
+
+  user        User             @relation(fields: [userId], references: [id], onDelete: Cascade)
+  generations GenerationTag[]
+
+  @@index([userId])
+  @@unique([userId, name])
+}
+
+model GenerationTag {
+  generationId String
+  tagId        String
+
+  generation   Generation @relation(fields: [generationId], references: [id], onDelete: Cascade)
+  tag          Tag        @relation(fields: [tagId], references: [id], onDelete: Cascade)
+
+  @@id([generationId, tagId])
+  @@index([tagId])
+}
+
+model Team {
+  id          String     @id @default(cuid())
+  name        String
+  ownerId     String
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+
+  owner       User       @relation(fields: [ownerId], references: [id], onDelete: Cascade)
+  members     TeamMember[]
+
+  @@index([ownerId])
+}
+
+model TeamMember {
+  id        String   @id @default(cuid())
+  teamId    String
+  userId    String
+  role      String   @default("member")
+  createdAt DateTime @default(now())
+
+  team      Team     @relation(fields: [teamId], references: [id], onDelete: Cascade)
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([teamId, userId])
+  @@index([userId])
+}
+
+model OnboardingProgress {
+  id              String   @id @default(cuid())
+  clerkId         String   @unique
+  completedSteps  String[]
+  isComplete      Boolean  @default(false)
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@index([clerkId])
 }
