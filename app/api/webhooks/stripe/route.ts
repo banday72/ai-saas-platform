@@ -87,12 +87,14 @@ export async function POST(req: Request) {
             plan: PLANS[plan].name,
           });
 
-          await sendBillingReceiptEmail(
-            user.email,
-            user.name,
-            session.amount_total ?? 0,
-            PLANS[plan].name
-          );
+          if (user.email) {
+            await sendBillingReceiptEmail(
+              user.email,
+              user.name,
+              session.amount_total ?? 0,
+              PLANS[plan].name
+            );
+          }
         }
       }
       break;
@@ -142,7 +144,7 @@ export async function POST(req: Request) {
               user.subscriptionPlan === "free" ? "Pro" : user.subscriptionPlan,
           });
 
-          if (user.credits <= 2) {
+          if (user.credits <= 2 && user.email) {
             const config = PLANS[user.subscriptionPlan as keyof typeof PLANS] ?? PLANS.free;
             await sendLowCreditsEmail(
               user.email,

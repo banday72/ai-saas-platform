@@ -9,7 +9,7 @@ import { Users, Plus, Mail, Crown, UserPlus } from "lucide-react";
 interface TeamMemberUser {
   id: string;
   name: string | null;
-  email: string;
+  email: string | null;
   image: string | null;
 }
 
@@ -195,7 +195,7 @@ export function TeamClient({
                     <div className="flex items-center gap-3">
                       <div className="w-8 h-8 rounded-full bg-zinc-800 border border-zinc-700/50 flex items-center justify-center text-xs font-medium text-zinc-400">
                         {member.user.name?.[0] ||
-                          member.user.email[0].toUpperCase()}
+                          member.user.email?.[0]?.toUpperCase() || "?"}
                       </div>
                       <div>
                         <p className="text-sm font-medium text-white">

@@ -18,23 +18,17 @@ export function requireUserId(userId: string | null | undefined): string {
 }
 
 export async function getOrCreateUser(clerkId: string) {
-  let user = await db.user.findUnique({
+  const user = await db.user.upsert({
     where: { clerkId },
+    create: {
+      clerkId,
+      credits: PLANS.free.monthlyCredits,
+      monthlyCredits: PLANS.free.monthlyCredits,
+      monthlyResetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
+    },
+    update: {},
     include: { generations: true, usageHistory: true, billingHistory: true },
   });
-
-  if (!user) {
-    user = await db.user.create({
-      data: {
-        clerkId,
-        email: "",
-        credits: PLANS.free.monthlyCredits,
-        monthlyCredits: PLANS.free.monthlyCredits,
-        monthlyResetDate: new Date(Date.now() + 30 * 24 * 60 * 60 * 1000),
-      },
-      include: { generations: true, usageHistory: true, billingHistory: true },
-    });
-  }
 
   return user;
 }
