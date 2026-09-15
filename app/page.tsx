@@ -1,4 +1,5 @@
 import Link from "next/link";
+import Image from "next/image";
 import {
   PenLine,
   Check,
@@ -203,11 +204,13 @@ export default function Home() {
           <div className="mt-16 max-w-4xl mx-auto">
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 p-1 overflow-hidden shadow-2xl shadow-black/50">
               <div className="rounded-xl overflow-hidden">
-                <img
+                <Image
                   src="https://images.unsplash.com/photo-1551434678-e076c223a692?w=1200&h=675&fit=crop&crop=center"
                   alt="Content creation dashboard"
+                  width={1200}
+                  height={675}
                   className="w-full h-auto object-cover opacity-90"
-                  loading="eager"
+                  priority
                 />
               </div>
             </div>
@@ -305,11 +308,12 @@ export default function Home() {
               </ul>
             </div>
             <div className="rounded-2xl border border-zinc-800 bg-zinc-900/60 overflow-hidden">
-              <img
+              <Image
                 src="https://images.unsplash.com/photo-1677442136019-21780ecad995?w=800&h=500&fit=crop&crop=center"
                 alt="AI content generation interface"
+                width={800}
+                height={500}
                 className="w-full h-auto object-cover opacity-90"
-                loading="lazy"
               />
             </div>
           </div>
