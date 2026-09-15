@@ -38,20 +38,6 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Invalid API key" }, { status: 401 });
     }
 
-    if (user.subscriptionPlan === "free") {
-      return NextResponse.json(
-        { error: "API access requires a Business plan. Upgrade at /billing" },
-        { status: 403 }
-      );
-    }
-
-    if (user.credits < 1) {
-      return NextResponse.json(
-        { error: "Insufficient credits. Please upgrade your plan." },
-        { status: 402 }
-      );
-    }
-
     const body = await req.json();
     const type = (body.type ?? "blog") as string;
     const prompt = (body.prompt ?? "").trim();
@@ -72,12 +58,7 @@ export async function POST(req: Request) {
     const titleMatch = content.match(/^Title:\s*(.+)$/m);
     const title = titleMatch ? titleMatch[1].trim() : prompt.slice(0, 60);
 
-    const [updatedUser, generation] = await db.$transaction([
-      db.user.update({
-        where: { id: user.id },
-        data: { credits: { decrement: 1 } },
-      }),
-      db.generation.create({
+    const generation = await db.generation.create({
         data: {
           userId: user.id,
           type,
@@ -86,19 +67,13 @@ export async function POST(req: Request) {
           prompt,
           creditsUsed: 1,
         },
-      }),
-    ]);
-
-    await db.usageHistory.create({
-      data: { userId: user.id, type, amount: 1 },
-    });
+      });
 
     return NextResponse.json({
       id: generation.id,
       content,
       type,
       title,
-      creditsLeft: updatedUser.credits,
     });
   } catch (error) {
     console.error("API generate error:", error);

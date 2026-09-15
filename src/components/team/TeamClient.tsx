@@ -97,31 +97,6 @@ export function TeamClient({
     }
   }
 
-  if (currentPlan === "free") {
-    return (
-      <div className="space-y-6 animate-fade-in">
-        <div>
-          <h2 className="text-2xl font-bold text-white tracking-tight">Team</h2>
-          <p className="text-sm text-zinc-400 mt-0.5">Manage your agency team</p>
-        </div>
-        <div className="p-12 rounded-xl border border-zinc-800/80 bg-zinc-900/30 text-center">
-          <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700/50 flex items-center justify-center mx-auto mb-4">
-            <Users className="h-6 w-6 text-zinc-500" />
-          </div>
-          <h3 className="text-sm font-semibold text-white mb-1">
-            Team Features
-          </h3>
-          <p className="text-xs text-zinc-400 mb-4">
-            Upgrade to Pro or Business to create teams.
-          </p>
-          <a href="/billing">
-            <Button size="sm">Upgrade Plan</Button>
-          </a>
-        </div>
-      </div>
-    );
-  }
-
   return (
     <div className="space-y-6 animate-fade-in">
       <div className="flex items-center justify-between">

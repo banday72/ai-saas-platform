@@ -39,7 +39,7 @@ const STEPS = [
   {
     id: "billing",
     title: "Choose a Plan",
-    description: "Start with 10 free credits or upgrade for more.",
+    description: "Everything is free — start generating content.",
     icon: CreditCard,
     action: "View Plans",
     href: "/billing",

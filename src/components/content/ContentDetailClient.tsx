@@ -214,7 +214,6 @@ export function ContentDetailClient({
           <Button
             onClick={handleRegenerate}
             loading={regenerating}
-            disabled={creditsLeft < 1}
           >
             <Sparkles className="h-4 w-4" />
             Regenerate

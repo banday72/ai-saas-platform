@@ -28,8 +28,6 @@ export async function sendLowCreditsEmail(
           <h2 style="color: #f59e0b;">Low Credits Warning</h2>
           <p>Hi ${name || "there"},</p>
           <p>You currently have <strong>${credits}</strong> credits remaining on your <strong>${plan}</strong> plan.</p>
-          <p>Upgrade your plan to continue generating content without interruption.</p>
-          <a href="${process.env.NEXT_PUBLIC_APP_URL}/billing" style="display: inline-block; background: #d97706; color: white; padding: 12px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;">Upgrade Plan</a>
           <p style="margin-top: 24px; color: #666; font-size: 12px;">If you don't need more credits, no action is required.</p>
         </div>
       `,
