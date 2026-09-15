@@ -4,7 +4,7 @@ import { OnboardingClient } from "@/src/components/onboarding/OnboardingClient";
 import { db } from "@/src/lib/db";
 
 export const metadata = {
-  title: "Getting Started - AI SaaS",
+  title: "Getting Started",
   description: "Set up your account and start generating content",
 };
 

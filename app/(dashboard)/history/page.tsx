@@ -5,7 +5,7 @@ import { HistoryClient } from "@/src/components/history/HistoryClient";
 import { db } from "@/src/lib/db";
 
 export const metadata = {
-  title: "Content History - AI SaaS",
+  title: "Content History",
   description: "View and manage all your generated content",
 };
 

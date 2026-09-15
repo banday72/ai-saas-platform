@@ -20,7 +20,7 @@ export async function sendLowCreditsEmail(
 
   try {
     await getResend().emails.send({
-      from: "AI SaaS <notifications@ai-saas.com>",
+      from: "ContentForge AI <notifications@contentforge.ai>",
       to: email,
       subject: `Low Credits Warning - ${credits} credits remaining`,
       html: `
@@ -49,7 +49,7 @@ export async function sendBillingReceiptEmail(
 
   try {
     await getResend().emails.send({
-      from: "AI SaaS <billing@ai-saas.com>",
+      from: "ContentForge AI <billing@contentforge.ai>",
       to: email,
       subject: `Payment Receipt - $${(amount / 100).toFixed(2)} for ${plan} plan`,
       html: `
@@ -81,7 +81,7 @@ export async function sendMonthlyReportEmail(
 
   try {
     await getResend().emails.send({
-      from: "AI SaaS <reports@ai-saas.com>",
+      from: "ContentForge AI <reports@contentforge.ai>",
       to: email,
       subject: `Your Monthly Report - ${new Date().toLocaleString("default", { month: "long" })}`,
       html: `

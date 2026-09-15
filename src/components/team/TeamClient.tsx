@@ -221,14 +221,10 @@ export function TeamClient({
                 <div className="pt-2">
                   <Label>Invite Member</Label>
                   <form onSubmit={handleInvite} className="flex gap-2 mt-1">
-                    <input
-                      type="hidden"
-                      value={team.id}
-                      onChange={() => setInviteTeamId(team.id)}
-                    />
                     <Input
                       type="email"
                       value={inviteTeamId === team.id ? inviteEmail : ""}
+                      onFocus={() => setInviteTeamId(team.id)}
                       onChange={(e) => {
                         setInviteTeamId(team.id);
                         setInviteEmail(e.target.value);

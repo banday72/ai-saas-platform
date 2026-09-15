@@ -5,7 +5,7 @@ import { db } from "@/src/lib/db";
 import { ContentDetailClient } from "@/src/components/content/ContentDetailClient";
 
 export const metadata = {
-  title: "Content Detail - AI SaaS",
+  title: "Content Detail",
   description: "View your generated content",
 };
 

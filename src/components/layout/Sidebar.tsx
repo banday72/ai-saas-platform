@@ -43,10 +43,12 @@ const titles: Record<string, string> = {
 export function Sidebar({
   credits,
   plan,
+  monthlyCredits,
   children,
 }: {
   credits: number;
   plan: string;
+  monthlyCredits: number;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -116,7 +118,7 @@ export function Sidebar({
             <div className="mt-2 h-1 rounded-full bg-zinc-700/50 overflow-hidden">
               <div
                 className="h-full rounded-full bg-amber-500"
-                style={{ width: `${Math.min((credits / 100) * 100, 100)}%` }}
+                style={{ width: `${Math.min((credits / (monthlyCredits || 100)) * 100, 100)}%` }}
               />
             </div>
           </div>

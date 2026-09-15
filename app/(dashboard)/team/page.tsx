@@ -5,7 +5,7 @@ import { TeamClient } from "@/src/components/team/TeamClient";
 import { db } from "@/src/lib/db";
 
 export const metadata = {
-  title: "Team - AI SaaS",
+  title: "Team",
   description: "Manage your team and agency accounts",
 };
 

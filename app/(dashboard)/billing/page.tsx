@@ -41,7 +41,7 @@ export default async function BillingPage() {
           <CardContent>
             <table className="w-full text-sm">
               <thead>
-                <tr className="text-left text-slate-400 border-b border-slate-700">
+                <tr className="text-left text-zinc-400 border-b border-zinc-800">
                   <th className="py-2">Date</th>
                   <th className="py-2">Plan</th>
                   <th className="py-2">Status</th>
@@ -50,17 +50,17 @@ export default async function BillingPage() {
               </thead>
               <tbody>
                 {billingHistory.map((item) => (
-                  <tr key={item.id} className="border-b border-slate-800">
-                    <td className="py-2 text-slate-300">
+                  <tr key={item.id} className="border-b border-zinc-800/50">
+                    <td className="py-2 text-zinc-300">
                       {new Date(item.createdAt).toLocaleDateString()}
                     </td>
-                    <td className="py-2 text-slate-300 capitalize">{item.plan}</td>
+                    <td className="py-2 text-zinc-300 capitalize">{item.plan}</td>
                     <td className="py-2">
-                      <span className="capitalize rounded-full bg-green-500/10 border border-green-500/40 px-2 py-0.5 text-xs text-green-400">
+                      <span className="capitalize rounded-full bg-emerald-500/10 border border-emerald-500/40 px-2 py-0.5 text-xs text-emerald-400">
                         {item.status}
                       </span>
                     </td>
-                    <td className="py-2 text-right text-slate-300">
+                    <td className="py-2 text-right text-zinc-300">
                       ${(item.amount / 100).toFixed(2)}
                     </td>
                   </tr>

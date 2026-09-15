@@ -8,7 +8,7 @@ import { resetMonthlyCreditsIfNeeded } from "@/src/lib/credits";
 export const metadata: Metadata = {
   title: {
     default: "Dashboard",
-    template: "%s | AI SaaS",
+    template: "%s | ContentForge AI",
   },
 };
 
@@ -24,7 +24,7 @@ export default async function DashboardLayout({
   const dbUser = await getOrCreateUser(user.id);
 
   return (
-    <Sidebar credits={dbUser.credits} plan={dbUser.subscriptionPlan}>
+    <Sidebar credits={dbUser.credits} plan={dbUser.subscriptionPlan} monthlyCredits={dbUser.monthlyCredits}>
       {children}
     </Sidebar>
   );

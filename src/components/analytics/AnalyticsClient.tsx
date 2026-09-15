@@ -44,7 +44,10 @@ export function AnalyticsClient() {
 
   useEffect(() => {
     fetch("/api/analytics")
-      .then((res) => res.json())
+      .then((res) => {
+        if (!res.ok) throw new Error("Failed to load");
+        return res.json();
+      })
       .then((d) => {
         setData(d);
         setLoading(false);

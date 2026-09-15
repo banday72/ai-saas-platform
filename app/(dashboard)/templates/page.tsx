@@ -5,7 +5,7 @@ import { db } from "@/src/lib/db";
 import { TemplatesClient } from "@/src/components/templates/TemplatesClient";
 
 export const metadata = {
-  title: "Templates - AI SaaS",
+  title: "Templates",
   description: "Manage your content generation templates",
 };
 
