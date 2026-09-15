@@ -1,4 +1,5 @@
 import { SignIn } from "@clerk/nextjs";
+import Link from "next/link";
 
 export const metadata = {
   title: "Sign In",
@@ -9,16 +10,20 @@ export default function SignInPage() {
     <div className="min-h-screen flex items-center justify-center bg-zinc-950 px-4">
       <div className="w-full max-w-sm">
         <div className="text-center mb-8">
-          <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center mx-auto mb-3">
-            <span className="text-black font-bold text-sm">C</span>
-          </div>
+          <Link href="/" className="inline-flex items-center gap-2.5 mb-6">
+            <div className="w-10 h-10 rounded-xl bg-amber-500 flex items-center justify-center">
+              <span className="text-black font-bold text-sm">C</span>
+            </div>
+            <span className="font-semibold text-white">ContentForge</span>
+          </Link>
           <h1 className="text-lg font-semibold text-white">Welcome back</h1>
           <p className="text-sm text-zinc-500 mt-1">
-            Sign in to your ContentForge account
+            Sign in to continue generating content
           </p>
         </div>
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
           <SignIn
+            routing="hash"
             appearance={{
               elements: {
                 rootBox: "w-full",

@@ -142,14 +142,14 @@ export default function Home() {
                 href="/sign-up"
                 className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-black font-semibold rounded-xl hover:bg-amber-400 transition-colors text-sm"
               >
-                Start Free — No Card Required
+                Get Started Free
                 <ArrowRight className="h-4 w-4" />
               </Link>
               <a
-                href="#pricing"
+                href="#features"
                 className="inline-flex items-center gap-2 px-6 py-3 border border-zinc-700 text-zinc-300 font-medium rounded-xl hover:bg-zinc-800/60 hover:text-white transition-colors text-sm"
               >
-                View Pricing
+                See Features
               </a>
             </div>
           </div>
