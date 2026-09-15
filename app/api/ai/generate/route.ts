@@ -43,13 +43,6 @@ export async function POST(req: Request) {
 
     const user = await getOrCreateUser(userId);
 
-    if (user.credits < 1) {
-      return NextResponse.json(
-        { error: "You have run out of credits. Please upgrade your plan." },
-        { status: 402 }
-      );
-    }
-
     const instructions = PROMPTS[type] ?? PROMPTS.blog;
 
     let content: string;
@@ -69,12 +62,7 @@ export async function POST(req: Request) {
     }
 
     const title = extractTitle(content) || prompt.slice(0, 60);
-    const [updatedUser, generation] = await db.$transaction([
-      db.user.update({
-        where: { id: user.id },
-        data: { credits: { decrement: 1 } },
-      }),
-      db.generation.create({
+    const generation = await db.generation.create({
         data: {
           userId: user.id,
           type,
@@ -83,18 +71,13 @@ export async function POST(req: Request) {
           prompt,
           creditsUsed: 1,
         },
-      }),
-    ]);
-
-    await db.usageHistory.create({
-      data: { userId: user.id, type, amount: 1 },
-    });
+      });
 
     return NextResponse.json({
       content,
       type,
       title,
-      creditsLeft: updatedUser.credits,
+      creditsLeft: 999999,
       id: generation.id,
     });
   } catch (error: unknown) {

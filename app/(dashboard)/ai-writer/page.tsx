@@ -22,7 +22,5 @@ export default async function AiWriterPage() {
     select: { id: true, title: true, type: true, createdAt: true },
   });
 
-  return (
-    <AiWriterClient creditsLeft={dbUser.credits} history={history} />
-  );
+  return <AiWriterClient history={history} />;
 }

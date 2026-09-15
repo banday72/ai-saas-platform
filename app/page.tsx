@@ -51,46 +51,6 @@ const features = [
   },
 ];
 
-const pricing = [
-  {
-    name: "Starter",
-    price: "$0",
-    credits: "10 credits / month",
-    features: ["10 credits / month", "Blog & social posts", "Basic support"],
-    cta: "Get Started Free",
-    href: "/sign-up",
-  },
-  {
-    name: "Professional",
-    price: "$19",
-    credits: "100 credits / month",
-    features: [
-      "100 credits / month",
-      "All 7 content types",
-      "SEO optimization",
-      "Priority support",
-      "Content history",
-    ],
-    cta: "Start Free Trial",
-    href: "/sign-up",
-    popular: true,
-  },
-  {
-    name: "Business",
-    price: "$49",
-    credits: "500 credits / month",
-    features: [
-      "500 credits / month",
-      "Everything in Pro",
-      "Agency accounts",
-      "REST API access",
-      "Team collaboration",
-    ],
-    cta: "Start Free Trial",
-    href: "/sign-up",
-  },
-];
-
 const testimonials = [
   {
     name: "Sarah Chen",
@@ -133,12 +93,6 @@ export default function Home() {
               className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800/60 transition-colors"
             >
               Features
-            </a>
-            <a
-              href="#pricing"
-              className="px-3 py-1.5 text-sm text-zinc-400 hover:text-white rounded-lg hover:bg-zinc-800/60 transition-colors"
-            >
-              Pricing
             </a>
             <a
               href="#testimonials"
@@ -363,92 +317,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Pricing */}
-      <section
-        id="pricing"
-        className="py-20 sm:py-28 border-t border-zinc-800/80"
-      >
-        <div className="max-w-6xl mx-auto px-4 sm:px-6">
-          <div className="max-w-2xl mb-12">
-            <p className="text-xs text-amber-500 font-medium uppercase tracking-widest mb-2">
-              Pricing
-            </p>
-            <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-3">
-              Simple, transparent pricing
-            </h2>
-            <p className="text-zinc-400 text-lg">
-              Start free. Upgrade when you need more.
-            </p>
-          </div>
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl">
-            {pricing.map((plan) => (
-              <div
-                key={plan.name}
-                className={`relative p-6 rounded-xl border ${
-                  plan.popular
-                    ? "border-amber-500/40 bg-amber-500/5"
-                    : "border-zinc-800 bg-zinc-900/30"
-                }`}
-              >
-                {plan.popular && (
-                  <span className="absolute -top-2.5 left-1/2 -translate-x-1/2 px-3 py-0.5 text-[10px] font-semibold uppercase tracking-wider bg-amber-500 text-black rounded-full">
-                    Most Popular
-                  </span>
-                )}
-                <p className="text-sm font-medium text-zinc-400 mb-1">
-                  {plan.name}
-                </p>
-                <div className="flex items-baseline gap-1 mb-1">
-                  <span className="text-3xl font-bold text-white">
-                    {plan.price}
-                  </span>
-                  <span className="text-sm text-zinc-500">/month</span>
-                </div>
-                <p className="text-xs text-amber-500 font-medium mb-5">
-                  {plan.credits}
-                </p>
-                <ul className="space-y-2.5 mb-6">
-                  {plan.features.map((f) => (
-                    <li
-                      key={f}
-                      className="flex items-center gap-2 text-sm text-zinc-300"
-                    >
-                      <Check className="h-4 w-4 text-amber-500 shrink-0" />
-                      {f}
-                    </li>
-                  ))}
-                </ul>
-                <Link
-                  href={plan.href}
-                  className={`block w-full text-center py-2.5 rounded-lg text-sm font-semibold transition-colors ${
-                    plan.popular
-                      ? "bg-amber-500 text-black hover:bg-amber-400"
-                      : "border border-zinc-700 text-zinc-300 hover:bg-zinc-800 hover:text-white"
-                  }`}
-                >
-                  {plan.cta}
-                </Link>
-              </div>
-            ))}
-          </div>
-        </div>
-      </section>
-
       {/* CTA */}
       <section className="py-20 sm:py-28 border-t border-zinc-800/80">
         <div className="max-w-6xl mx-auto px-4 sm:px-6 text-center">
           <h2 className="text-3xl sm:text-4xl font-bold tracking-tight mb-4">
-            Start creating better content today
+            Everything is free — start now
           </h2>
           <p className="text-zinc-400 text-lg mb-8 max-w-xl mx-auto">
-            Join 2,000+ agencies using ContentForge to produce high-quality
-            content at scale.
+            All features, unlimited content generation. No credit card required.
           </p>
           <Link
             href="/sign-up"
             className="inline-flex items-center gap-2 px-6 py-3 bg-amber-500 text-black font-semibold rounded-xl hover:bg-amber-400 transition-colors text-sm"
           >
-            Start Free — No Card Required
+            Get Started Free
             <ArrowRight className="h-4 w-4" />
           </Link>
         </div>

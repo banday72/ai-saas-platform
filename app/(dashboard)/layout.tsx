@@ -2,8 +2,6 @@ import type { Metadata } from "next";
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { Sidebar } from "@/src/components/layout/Sidebar";
-import { getOrCreateUser } from "@/src/lib/dal";
-import { resetMonthlyCreditsIfNeeded } from "@/src/lib/credits";
 
 export const metadata: Metadata = {
   title: {
@@ -20,12 +18,5 @@ export default async function DashboardLayout({
   const user = await currentUser();
   if (!user) redirect("/sign-in");
 
-  await resetMonthlyCreditsIfNeeded(user.id);
-  const dbUser = await getOrCreateUser(user.id);
-
-  return (
-    <Sidebar credits={dbUser.credits} plan={dbUser.subscriptionPlan} monthlyCredits={dbUser.monthlyCredits}>
-      {children}
-    </Sidebar>
-  );
+  return <Sidebar>{children}</Sidebar>;
 }

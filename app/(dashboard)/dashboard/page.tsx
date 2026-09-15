@@ -2,15 +2,8 @@ import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
 import { db } from "@/src/lib/db";
 import { getOrCreateUser } from "@/src/lib/dal";
-import { PLANS } from "@/src/lib/plans";
 import Link from "next/link";
-import {
-  ArrowUpRight,
-  PenLine,
-  CreditCard,
-  TrendingUp,
-  Sparkles,
-} from "lucide-react";
+import { ArrowUpRight, PenLine, Sparkles, BarChart3 } from "lucide-react";
 
 export const metadata = {
   title: "Dashboard",
@@ -33,41 +26,26 @@ export default async function DashboardPage() {
         title: true,
         type: true,
         createdAt: true,
-        creditsUsed: true,
       },
     }),
   ]);
 
-  const plan =
-    PLANS[dbUser.subscriptionPlan as keyof typeof PLANS] ?? PLANS.free;
-  const creditsUsed = plan.monthlyCredits - dbUser.credits;
-  const creditsPercent =
-    plan.monthlyCredits > 0 ? (creditsUsed / plan.monthlyCredits) * 100 : 0;
-
   return (
     <div className="space-y-6 animate-fade-in">
-      {/* Welcome */}
       <div>
         <h2 className="text-2xl font-bold text-white tracking-tight">
           Welcome back, {user.firstName || "there"}
         </h2>
         <p className="text-sm text-zinc-400 mt-1">
-          You have{" "}
-          <span className="font-medium text-amber-500">{dbUser.credits}</span>{" "}
-          credits on the{" "}
-          <span className="font-medium text-white capitalize">
-            {dbUser.subscriptionPlan}
-          </span>{" "}
-          plan.
+          Everything is free — generate unlimited content.
         </p>
       </div>
 
-      {/* Stats */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
-              Generations
+              Total Generations
             </span>
             <div className="w-8 h-8 rounded-lg bg-violet-500/10 border border-violet-500/20 flex items-center justify-center">
               <Sparkles className="h-4 w-4 text-violet-400" />
@@ -78,50 +56,16 @@ export default async function DashboardPage() {
         <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30">
           <div className="flex items-center justify-between mb-3">
             <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
-              Credits Used
-            </span>
-            <div className="w-8 h-8 rounded-lg bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
-              <CreditCard className="h-4 w-4 text-amber-500" />
-            </div>
-          </div>
-          <p className="text-2xl font-bold text-white">
-            {Math.max(0, creditsUsed)}
-            <span className="text-sm font-normal text-zinc-500">
-              {" "}
-              / {plan.monthlyCredits}
-            </span>
-          </p>
-        </div>
-        <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30">
-          <div className="flex items-center justify-between mb-3">
-            <span className="text-xs text-zinc-500 font-medium uppercase tracking-wider">
               Status
             </span>
             <div className="w-8 h-8 rounded-lg bg-emerald-500/10 border border-emerald-500/20 flex items-center justify-center">
-              <TrendingUp className="h-4 w-4 text-emerald-400" />
+              <BarChart3 className="h-4 w-4 text-emerald-400" />
             </div>
           </div>
           <p className="text-2xl font-bold text-emerald-400">Active</p>
         </div>
       </div>
 
-      {/* Credit usage bar */}
-      <div className="p-4 rounded-xl border border-zinc-800/80 bg-zinc-900/30">
-        <div className="flex items-center justify-between mb-2">
-          <span className="text-sm text-zinc-400">Credit usage this month</span>
-          <span className="text-sm font-medium text-white">
-            {Math.round(creditsPercent)}%
-          </span>
-        </div>
-        <div className="h-2 rounded-full bg-zinc-800 overflow-hidden">
-          <div
-            className="h-full rounded-full bg-amber-500 transition-all duration-500"
-            style={{ width: `${Math.min(creditsPercent, 100)}%` }}
-          />
-        </div>
-      </div>
-
-      {/* Quick actions */}
       <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
         <Link
           href="/ai-writer"
@@ -143,19 +87,19 @@ export default async function DashboardPage() {
           </div>
         </Link>
         <Link
-          href="/billing"
+          href="/analytics"
           className="group p-5 rounded-xl border border-zinc-800/80 bg-zinc-900/30 hover:border-zinc-700/80 hover:bg-zinc-900/60 transition-all"
         >
           <div className="flex items-start justify-between">
             <div>
               <div className="w-10 h-10 rounded-lg bg-zinc-800 border border-zinc-700/50 flex items-center justify-center mb-3">
-                <CreditCard className="h-5 w-5 text-zinc-400" />
+                <BarChart3 className="h-5 w-5 text-zinc-400" />
               </div>
               <h3 className="text-sm font-semibold text-white mb-1">
-                Need More Credits?
+                Analytics
               </h3>
               <p className="text-xs text-zinc-400">
-                Upgrade to Pro or Business for more monthly credits.
+                View your content generation stats and trends.
               </p>
             </div>
             <ArrowUpRight className="h-4 w-4 text-zinc-600 group-hover:text-zinc-400 transition-colors" />
@@ -163,7 +107,6 @@ export default async function DashboardPage() {
         </Link>
       </div>
 
-      {/* Recent */}
       {recentGenerations.length > 0 && (
         <div className="rounded-xl border border-zinc-800/80 bg-zinc-900/30">
           <div className="px-5 pt-5 pb-2">
@@ -188,9 +131,6 @@ export default async function DashboardPage() {
                       {new Date(gen.createdAt).toLocaleDateString()}
                     </p>
                   </div>
-                  <span className="text-xs text-zinc-500 shrink-0 ml-4">
-                    {gen.creditsUsed} credit
-                  </span>
                 </a>
               ))}
             </div>
@@ -198,7 +138,6 @@ export default async function DashboardPage() {
         </div>
       )}
 
-      {/* Empty state */}
       {recentGenerations.length === 0 && (
         <div className="p-12 rounded-xl border border-zinc-800/80 bg-zinc-900/30 text-center">
           <div className="w-12 h-12 rounded-xl bg-zinc-800 border border-zinc-700/50 flex items-center justify-center mx-auto mb-4">

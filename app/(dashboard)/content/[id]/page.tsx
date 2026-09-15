@@ -50,7 +50,7 @@ export default async function ContentDetailPage({
       }}
       folders={folders}
       tags={tags}
-      creditsLeft={dbUser.credits}
+      creditsLeft={999999}
     />
   );
 }

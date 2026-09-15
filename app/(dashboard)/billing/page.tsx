@@ -1,75 +1,61 @@
 import { currentUser } from "@clerk/nextjs/server";
 import { redirect } from "next/navigation";
-import { getOrCreateUser } from "@/src/lib/dal";
-import { db } from "@/src/lib/db";
-import { PLANS } from "@/src/lib/plans";
-import { BillingClient } from "@/src/components/billing/BillingClient";
-import { Card, CardHeader, CardTitle, CardContent } from "@/src/components/ui";
+import { Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui";
+import { Sparkles } from "lucide-react";
 
 export const metadata = {
   title: "Billing",
-  description: "Manage your subscription, view plans, and billing history",
+  description: "Your plan details",
 };
 
 export default async function BillingPage() {
   const user = await currentUser();
   if (!user) redirect("/sign-in");
 
-  const dbUser = await getOrCreateUser(user.id);
-  const plan = PLANS[dbUser.subscriptionPlan as keyof typeof PLANS] ?? PLANS.free;
-
-  const billingHistory = await db.billingHistory.findMany({
-    where: { userId: dbUser.id },
-    orderBy: { createdAt: "desc" },
-    take: 10,
-  });
-
   return (
-    <div className="space-y-8">
-      <BillingClient
-        currentPlan={dbUser.subscriptionPlan}
-        hasSubscription={dbUser.subscriptionPlan !== "free"}
-        creditsRemaining={dbUser.credits}
-        monthlyCredits={plan.monthlyCredits}
-      />
+    <div className="space-y-6 animate-fade-in">
+      <div>
+        <h2 className="text-2xl font-bold text-white tracking-tight">Billing</h2>
+        <p className="text-sm text-zinc-400 mt-0.5">Your plan and usage</p>
+      </div>
 
-      {billingHistory.length > 0 && (
-        <Card>
-          <CardHeader>
-            <CardTitle>Billing History</CardTitle>
-          </CardHeader>
-          <CardContent>
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="text-left text-zinc-400 border-b border-zinc-800">
-                  <th className="py-2">Date</th>
-                  <th className="py-2">Plan</th>
-                  <th className="py-2">Status</th>
-                  <th className="py-2 text-right">Amount</th>
-                </tr>
-              </thead>
-              <tbody>
-                {billingHistory.map((item) => (
-                  <tr key={item.id} className="border-b border-zinc-800/50">
-                    <td className="py-2 text-zinc-300">
-                      {new Date(item.createdAt).toLocaleDateString()}
-                    </td>
-                    <td className="py-2 text-zinc-300 capitalize">{item.plan}</td>
-                    <td className="py-2">
-                      <span className="capitalize rounded-full bg-emerald-500/10 border border-emerald-500/40 px-2 py-0.5 text-xs text-emerald-400">
-                        {item.status}
-                      </span>
-                    </td>
-                    <td className="py-2 text-right text-zinc-300">
-                      ${(item.amount / 100).toFixed(2)}
-                    </td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </CardContent>
-        </Card>
-      )}
+      <Card>
+        <CardHeader>
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/20 flex items-center justify-center">
+              <Sparkles className="h-5 w-5 text-amber-500" />
+            </div>
+            <div>
+              <CardTitle>Free Plan</CardTitle>
+              <p className="text-sm text-zinc-400">Everything included — unlimited usage</p>
+            </div>
+          </div>
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-3">
+            <div className="flex items-center gap-3 text-sm text-zinc-300">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Unlimited content generations
+            </div>
+            <div className="flex items-center gap-3 text-sm text-zinc-300">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              All 7 content types
+            </div>
+            <div className="flex items-center gap-3 text-sm text-zinc-300">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Templates and content history
+            </div>
+            <div className="flex items-center gap-3 text-sm text-zinc-300">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Analytics dashboard
+            </div>
+            <div className="flex items-center gap-3 text-sm text-zinc-300">
+              <div className="w-1.5 h-1.5 rounded-full bg-emerald-500" />
+              Team collaboration
+            </div>
+          </div>
+        </CardContent>
+      </Card>
     </div>
   );
 }

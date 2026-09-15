@@ -6,7 +6,6 @@ import { UserButton } from "@clerk/nextjs";
 import {
   LayoutDashboard,
   PenLine,
-  CreditCard,
   Settings,
   History,
   FileText,
@@ -23,7 +22,6 @@ const navItems = [
   { href: "/history", label: "History", icon: History },
   { href: "/templates", label: "Templates", icon: FileText },
   { href: "/analytics", label: "Analytics", icon: BarChart3 },
-  { href: "/billing", label: "Billing", icon: CreditCard },
   { href: "/team", label: "Team", icon: Users },
   { href: "/settings", label: "Settings", icon: Settings },
 ];
@@ -34,21 +32,13 @@ const titles: Record<string, string> = {
   "/history": "Content History",
   "/templates": "Templates",
   "/analytics": "Analytics",
-  "/billing": "Billing",
   "/team": "Team",
   "/settings": "Settings",
-  "/onboarding": "Getting Started",
 };
 
 export function Sidebar({
-  credits,
-  plan,
-  monthlyCredits,
   children,
 }: {
-  credits: number;
-  plan: string;
-  monthlyCredits: number;
   children: React.ReactNode;
 }) {
   const pathname = usePathname();
@@ -104,25 +94,6 @@ export function Sidebar({
             );
           })}
         </nav>
-
-        {/* Credits */}
-        {!collapsed && (
-          <div className="mx-3 mb-3 p-3 rounded-lg bg-zinc-800/50 border border-zinc-800">
-            <div className="flex items-center justify-between mb-1">
-              <span className="text-xs text-zinc-500">Credits</span>
-              <span className="text-[10px] font-medium uppercase tracking-wider text-amber-500">
-                {plan}
-              </span>
-            </div>
-            <p className="text-xl font-bold text-white">{credits}</p>
-            <div className="mt-2 h-1 rounded-full bg-zinc-700/50 overflow-hidden">
-              <div
-                className="h-full rounded-full bg-amber-500"
-                style={{ width: `${Math.min((credits / (monthlyCredits || 100)) * 100, 100)}%` }}
-              />
-            </div>
-          </div>
-        )}
 
         {/* Collapse toggle */}
         <button

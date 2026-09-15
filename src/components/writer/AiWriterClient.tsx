@@ -37,10 +37,8 @@ interface Template {
 }
 
 export function AiWriterClient({
-  creditsLeft,
   history,
 }: {
-  creditsLeft: number;
   history: { id: string; title: string; type: string; createdAt: Date }[];
 }) {
   const searchParams = useSearchParams();
@@ -133,14 +131,6 @@ export function AiWriterClient({
             Generate high-quality content in seconds.
           </p>
         </div>
-        <div className="flex items-center gap-2 text-sm">
-          <span className="px-2.5 py-1 rounded-lg bg-zinc-800 border border-zinc-700/50 text-zinc-400 font-medium">
-            1 credit / generation
-          </span>
-          <span className="px-2.5 py-1 rounded-lg bg-amber-500/10 border border-amber-500/20 text-amber-500 font-medium">
-            {creditsLeft} left
-          </span>
-        </div>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -216,19 +206,9 @@ export function AiWriterClient({
 
               {error && <Alert variant="danger">{error}</Alert>}
 
-              {creditsLeft < 1 && (
-                <Alert variant="warning">
-                  No credits left.{" "}
-                  <a href="/billing" className="underline font-medium">
-                    Upgrade your plan
-                  </a>
-                </Alert>
-              )}
-
               <Button
                 type="submit"
                 loading={loading}
-                disabled={creditsLeft < 1}
                 className="w-full"
               >
                 {loading ? (
