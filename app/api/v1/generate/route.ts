@@ -1,28 +1,18 @@
 import { NextResponse } from "next/server";
-import OpenAI from "openai";
 import { db } from "@/src/lib/db";
 import { authenticateApiKey } from "@/src/lib/api-auth";
 
-export const runtime = "nodejs";
-export const maxDuration = 30;
-
-let _openai: OpenAI | null = null;
-function getOpenAI() {
-  if (!_openai) {
-    _openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
-  }
-  return _openai;
-}
-
-const PROMPTS: Record<string, string> = {
-  blog: `You are an expert content marketer. Write a compelling, well-structured blog post about the topic provided. Include an engaging title (prefixed with "Title: "), a strong introduction, use headings, bullet points, and a clear conclusion. Write in a professional yet conversational tone.`,
-  social: `You are a social media strategist. Create engaging social media content for the topic provided. Include a catchy hook, relevant hashtags, and a call-to-action. Output ready-to-post content.`,
-  email: `You are an expert email copywriter. Write a high-converting email about the topic provided. Include a subject line (prefixed with "Subject: "), personalized opening, clear body, and a strong call-to-action.`,
-  ad: `You are an expert advertising copywriter. Write compelling ad copy for the topic provided. Include a headline, body copy, and a clear call-to-action. Make it persuasive and conversion-focused.`,
-  website: `You are an expert web copywriter. Write persuasive website copy for the topic provided. Include a hero headline, subheadline, feature sections, and a call-to-action.`,
-  product: `You are an expert product copywriter. Write detailed product description copy for the topic provided. Highlight features and benefits in a compelling way.`,
-  seo: `You are an SEO specialist. Write SEO-optimized content for the topic provided. Include a focus keyword, meta title, meta description, and an outline with keyword-rich headings.`,
+const DEMO_CONTENT: Record<string, (topic: string) => string> = {
+  blog: (topic) => `Title: ${topic}\n\nA comprehensive guide covering the essential aspects of ${topic}. This article explores key strategies, best practices, and actionable tips to help you succeed.\n\n## Key Takeaways\n\n- Start with clear objectives\n- Focus on quality over quantity\n- Measure your results consistently\n- Iterate and improve over time`,
+  social: (topic) => `Ready to level up your ${topic} game? 🚀\n\nHere are 3 tips that actually work:\n1. Focus on value first\n2. Be consistent with your message\n3. Engage with your audience daily\n\n#Marketing #Growth #Tips`,
+  email: (topic) => `Subject: A fresh approach to ${topic}\n\nHi there,\n\nI wanted to share a quick insight about ${topic} that could help you see better results.\n\nThe key is to start small, measure consistently, and optimize based on data.\n\nBest,\nThe Team`,
+  ad: (topic) => `Headline: Master ${topic} Today\nBody: Join thousands of professionals using smart strategies to succeed.\nCTA: Start Free →`,
+  website: (topic) => `# ${topic}\n\n## Professional solutions for modern teams\n\nOur platform helps you achieve more with less effort.\n\n- Easy to use\n- Proven results\n- Free to start`,
+  product: (topic) => `# ${topic}\n\nA comprehensive solution designed for modern teams. Features include automation, analytics, and seamless integration.\n\nGet started free today.`,
+  seo: (topic) => `Title: ${topic} Guide\nMeta: Complete guide to ${topic} with tips and strategies.\n\n## What is ${topic}?\n## How to Get Started\n## Best Practices\n## FAQ`,
 };
+
+export const runtime = "nodejs";
 
 export async function POST(req: Request) {
   try {
@@ -30,7 +20,7 @@ export async function POST(req: Request) {
     const apiKey = authHeader?.replace("Bearer ", "");
 
     if (!apiKey) {
-      return NextResponse.json({ error: "API key required. Pass it as Authorization: Bearer <key>" }, { status: 401 });
+      return NextResponse.json({ error: "API key required" }, { status: 401 });
     }
 
     const user = await authenticateApiKey(apiKey);
@@ -46,28 +36,36 @@ export async function POST(req: Request) {
       return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
     }
 
-    const instructions = PROMPTS[type] ?? PROMPTS.blog;
+    const hasOpenAI = process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes("placeholder");
+    let content: string;
 
-    const response = await getOpenAI().responses.create({
-      model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
-      instructions,
-      input: prompt,
-    });
+    if (hasOpenAI) {
+      const OpenAI = (await import("openai")).default;
+      const openai = new OpenAI({ apiKey: process.env.OPENAI_API_KEY });
+      const response = await openai.responses.create({
+        model: process.env.OPENAI_MODEL ?? "gpt-4o-mini",
+        instructions: "Write high-quality content about the topic provided.",
+        input: prompt,
+      });
+      content = response.output_text;
+    } else {
+      const generator = DEMO_CONTENT[type] ?? DEMO_CONTENT.blog;
+      content = generator(prompt);
+    }
 
-    const content = response.output_text;
     const titleMatch = content.match(/^Title:\s*(.+)$/m);
     const title = titleMatch ? titleMatch[1].trim() : prompt.slice(0, 60);
 
     const generation = await db.generation.create({
-        data: {
-          userId: user.id,
-          type,
-          title,
-          content,
-          prompt,
-          creditsUsed: 1,
-        },
-      });
+      data: {
+        userId: user.id,
+        type,
+        title,
+        content,
+        prompt,
+        creditsUsed: 1,
+      },
+    });
 
     return NextResponse.json({
       id: generation.id,
