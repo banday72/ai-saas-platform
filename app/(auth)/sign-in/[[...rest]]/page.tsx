@@ -23,6 +23,7 @@ export default function SignInPage() {
         </div>
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
           <SignIn
+            forceRedirectUrl="/dashboard"
             appearance={{
               elements: {
                 rootBox: "w-full",
