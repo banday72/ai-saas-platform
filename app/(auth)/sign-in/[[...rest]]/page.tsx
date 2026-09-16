@@ -23,7 +23,6 @@ export default function SignInPage() {
         </div>
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
           <SignIn
-            routing="hash"
             appearance={{
               elements: {
                 rootBox: "w-full",
