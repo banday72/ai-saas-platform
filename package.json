@@ -11,18 +11,14 @@
   },
   "dependencies": {
     "@clerk/nextjs": "^7.6.2",
-    "@hookform/resolvers": "^5.5.7",
     "@prisma/client": "^5.18.0",
     "@stripe/stripe-js": "^9.12.1",
-    "axios": "^1.18.1",
     "lucide-react": "^1.27.0",
     "next": "16.2.12",
     "next-themes": "^0.4.6",
     "openai": "^7.0.0",
-    "prisma": "^5.18.0",
     "react": "19.2.4",
     "react-dom": "19.2.4",
-    "react-hook-form": "^7.83.0",
     "resend": "^6.18.0",
     "stripe": "^22.3.2",
     "zod": "^4.4.3"
@@ -34,6 +30,7 @@
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.2.12",
+    "prisma": "^5.18.0",
     "tailwindcss": "^4",
     "typescript": "^5"
   }

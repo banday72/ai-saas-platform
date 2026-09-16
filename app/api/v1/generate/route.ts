@@ -1,6 +1,8 @@
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/src/lib/db";
 import { authenticateApiKey } from "@/src/lib/api-auth";
+import { spendCredits } from "@/src/lib/credits";
 
 const DEMO_CONTENT: Record<string, (topic: string) => string> = {
   blog: (topic) => `Title: ${topic}\n\nA comprehensive guide covering the essential aspects of ${topic}. This article explores key strategies, best practices, and actionable tips to help you succeed.\n\n## Key Takeaways\n\n- Start with clear objectives\n- Focus on quality over quantity\n- Measure your results consistently\n- Iterate and improve over time`,
@@ -11,6 +13,11 @@ const DEMO_CONTENT: Record<string, (topic: string) => string> = {
   product: (topic) => `# ${topic}\n\nA comprehensive solution designed for modern teams. Features include automation, analytics, and seamless integration.\n\nGet started free today.`,
   seo: (topic) => `Title: ${topic} Guide\nMeta: Complete guide to ${topic} with tips and strategies.\n\n## What is ${topic}?\n## How to Get Started\n## Best Practices\n## FAQ`,
 };
+
+const GenerateRequestSchema = z.object({
+  type: z.enum(["blog", "social", "email", "ad", "website", "product", "seo"]).default("blog"),
+  prompt: z.string().min(1, "Prompt is required").max(10000, "Prompt is too long"),
+});
 
 export const runtime = "nodejs";
 
@@ -29,11 +36,22 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const type = (body.type ?? "blog") as string;
-    const prompt = (body.prompt ?? "").trim();
+    const parsed = GenerateRequestSchema.safeParse(body);
 
-    if (!prompt) {
-      return NextResponse.json({ error: "Prompt is required" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 }
+      );
+    }
+
+    const { type, prompt } = parsed.data;
+
+    if (user.credits < 1) {
+      return NextResponse.json(
+        { error: "Insufficient credits" },
+        { status: 402 }
+      );
     }
 
     const hasOpenAI = process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes("placeholder");
@@ -66,6 +84,8 @@ export async function POST(req: Request) {
         creditsUsed: 1,
       },
     });
+
+    await spendCredits(user.clerkId, 1);
 
     return NextResponse.json({
       id: generation.id,

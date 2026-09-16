@@ -1,7 +1,12 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/src/lib/db";
 import { getOrCreateUser } from "@/src/lib/dal";
+
+const CreateTeamSchema = z.object({
+  name: z.string().min(1).max(100),
+});
 
 export const runtime = "nodejs";
 
@@ -60,19 +65,17 @@ export async function POST(req: Request) {
 
     const user = await getOrCreateUser(userId);
 
-    if (user.subscriptionPlan === "free") {
+    const body = await req.json();
+    const parsed = CreateTeamSchema.safeParse(body);
+
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Team features require a Pro or Business plan" },
-        { status: 403 }
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 }
       );
     }
 
-    const body = await req.json();
-    const { name } = body;
-
-    if (!name) {
-      return NextResponse.json({ error: "Team name is required" }, { status: 400 });
-    }
+    const { name } = parsed.data;
 
     const team = await db.team.create({
       data: {

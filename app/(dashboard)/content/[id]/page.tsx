@@ -50,7 +50,6 @@ export default async function ContentDetailPage({
       }}
       folders={folders}
       tags={tags}
-      creditsLeft={999999}
     />
   );
 }

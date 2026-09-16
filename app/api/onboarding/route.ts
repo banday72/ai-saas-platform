@@ -1,6 +1,14 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/src/lib/db";
+
+const ONBOARDING_STEPS = ["profile", "first-generation", "template", "team", "billing"] as const;
+
+const OnboardingStepSchema = z.object({
+  step: z.enum(ONBOARDING_STEPS),
+  isComplete: z.boolean().optional().default(false),
+});
 
 export const runtime = "nodejs";
 
@@ -32,18 +40,27 @@ export async function POST(req: Request) {
     }
 
     const body = await req.json();
-    const { step, isComplete } = body;
+    const parsed = OnboardingStepSchema.safeParse(body);
+
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 }
+      );
+    }
+
+    const { step, isComplete } = parsed.data;
 
     const progress = await db.onboardingProgress.upsert({
       where: { clerkId: userId },
       update: {
-        completedSteps: step ? { push: step } : undefined,
-        isComplete: isComplete || false,
+        completedSteps: { push: step },
+        isComplete,
       },
       create: {
         clerkId: userId,
-        completedSteps: step ? [step] : [],
-        isComplete: isComplete || false,
+        completedSteps: [step],
+        isComplete,
       },
     });
 

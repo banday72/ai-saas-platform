@@ -4,7 +4,7 @@ import { useState } from "react";
 import { useRouter } from "next/navigation";
 import { Button, Card, CardContent, CardHeader, CardTitle, CardDescription, Input, Label } from "@/src/components/ui";
 import { Alert } from "@/src/components/ui/Alert";
-import { Users, Plus, Mail, Crown, UserPlus } from "lucide-react";
+import { Users, Plus, Mail, Crown } from "lucide-react";
 
 interface TeamMemberUser {
   id: string;
@@ -28,13 +28,9 @@ interface Team {
 }
 
 export function TeamClient({
-  memberships,
   ownedTeams,
-  currentPlan,
 }: {
-  memberships: { team: Team }[];
   ownedTeams: Team[];
-  currentPlan: string;
 }) {
   const router = useRouter();
   const [showCreate, setShowCreate] = useState(false);

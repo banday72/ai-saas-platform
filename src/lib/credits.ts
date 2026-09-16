@@ -1,7 +1,7 @@
 import "server-only";
 
 import { db } from "./db";
-import { getOrCreateUser, requireUserId } from "./dal";
+import { getOrCreateUser } from "./dal";
 import { PLANS } from "./plans";
 
 export interface CreditResult {
@@ -67,6 +67,6 @@ export async function resetMonthlyCreditsIfNeeded(clerkId: string) {
   });
 }
 
-export function isPublicUser() {
-  requireUserId(null);
+export function isPublicUser(userId: string | null | undefined): boolean {
+  return !userId;
 }

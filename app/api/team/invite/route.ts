@@ -1,7 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/src/lib/db";
 import { getOrCreateUser } from "@/src/lib/dal";
+
+const InviteMemberSchema = z.object({
+  teamId: z.string().min(1),
+  email: z.string().email("Invalid email format"),
+});
 
 export const runtime = "nodejs";
 
@@ -14,11 +20,16 @@ export async function POST(req: Request) {
 
     const user = await getOrCreateUser(userId);
     const body = await req.json();
-    const { teamId, email } = body;
+    const parsed = InviteMemberSchema.safeParse(body);
 
-    if (!teamId || !email) {
-      return NextResponse.json({ error: "Team ID and email are required" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 }
+      );
     }
+
+    const { teamId, email } = parsed.data;
 
     const team = await db.team.findFirst({
       where: { id: teamId, ownerId: user.id },

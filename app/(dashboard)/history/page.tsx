@@ -39,7 +39,7 @@ export default async function HistoryPage({
     where.tags = { some: { tagId } };
   }
 
-  const [generations, total, folders, tags] = await Promise.all([
+  const [generations, total] = await Promise.all([
     db.generation.findMany({
       where,
       orderBy: { createdAt: "desc" },
@@ -57,16 +57,6 @@ export default async function HistoryPage({
       },
     }),
     db.generation.count({ where }),
-    db.folder.findMany({
-      where: { userId: dbUser.id },
-      select: { id: true, name: true, color: true },
-      orderBy: { name: "asc" },
-    }),
-    db.tag.findMany({
-      where: { userId: dbUser.id },
-      select: { id: true, name: true, color: true },
-      orderBy: { name: "asc" },
-    }),
   ]);
 
   const totalPages = Math.ceil(total / limit);
@@ -80,8 +70,6 @@ export default async function HistoryPage({
       totalPages={totalPages}
       currentPage={page}
       total={total}
-      folders={folders}
-      tags={tags}
       filters={{ search, type, folderId, tagId }}
     />
   );

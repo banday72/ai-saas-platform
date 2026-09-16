@@ -1,7 +1,13 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/src/lib/db";
 import { getOrCreateUser } from "@/src/lib/dal";
+
+const CreateTagSchema = z.object({
+  name: z.string().min(1).max(50),
+  color: z.string().regex(/^#[0-9a-fA-F]{6}$/, "Invalid hex color").optional().default("#6366f1"),
+});
 
 export const runtime = "nodejs";
 
@@ -35,17 +41,22 @@ export async function POST(req: Request) {
 
     const user = await getOrCreateUser(userId);
     const body = await req.json();
-    const { name, color } = body;
+    const parsed = CreateTagSchema.safeParse(body);
 
-    if (!name) {
-      return NextResponse.json({ error: "Name is required" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 }
+      );
     }
+
+    const { name, color } = parsed.data;
 
     const tag = await db.tag.create({
       data: {
         userId: user.id,
         name: name.toLowerCase().trim(),
-        color: color || "#6366f1",
+        color,
       },
     });
 

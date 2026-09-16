@@ -1,7 +1,16 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/src/lib/db";
 import { getOrCreateUser } from "@/src/lib/dal";
+
+const CreateTemplateSchema = z.object({
+  name: z.string().min(1).max(100),
+  description: z.string().max(500).nullable().optional(),
+  type: z.enum(["blog", "social", "email", "ad", "website", "product", "seo"]),
+  prompt: z.string().min(1).max(10000),
+  isPublic: z.boolean().optional().default(false),
+});
 
 export const runtime = "nodejs";
 
@@ -34,11 +43,16 @@ export async function POST(req: Request) {
 
     const user = await getOrCreateUser(userId);
     const body = await req.json();
-    const { name, description, type, prompt, isPublic } = body;
+    const parsed = CreateTemplateSchema.safeParse(body);
 
-    if (!name || !type || !prompt) {
-      return NextResponse.json({ error: "Name, type, and prompt are required" }, { status: 400 });
+    if (!parsed.success) {
+      return NextResponse.json(
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
+        { status: 400 }
+      );
     }
+
+    const { name, description, type, prompt, isPublic } = parsed.data;
 
     const template = await db.template.create({
       data: {
@@ -47,7 +61,7 @@ export async function POST(req: Request) {
         description: description || null,
         type,
         prompt,
-        isPublic: isPublic || false,
+        isPublic,
       },
     });
 

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import {
   Button,
@@ -57,25 +57,27 @@ export function AiWriterClient({
   const [copied, setCopied] = useState(false);
   const [templates, setTemplates] = useState<Template[]>([]);
   const [selectedTemplate, setSelectedTemplate] = useState<string>("");
+  const templateAppliedRef = useRef(false);
 
   useEffect(() => {
     fetch("/api/templates")
       .then((res) => res.json())
-      .then((data) => setTemplates(data.templates || []))
+      .then((data) => {
+        const fetched = data.templates || [];
+        setTemplates(fetched);
+        const templateId = searchParams.get("templateId");
+        if (!templateAppliedRef.current && templateId && fetched.length > 0) {
+          const tpl = fetched.find((t: Template) => t.id === templateId);
+          if (tpl) {
+            setType(tpl.type as ContentType);
+            setPrompt(tpl.prompt);
+            setSelectedTemplate(tpl.id);
+            templateAppliedRef.current = true;
+          }
+        }
+      })
       .catch(() => {});
-  }, []);
-
-  useEffect(() => {
-    const templateId = searchParams.get("templateId");
-    if (templateId && templates.length > 0) {
-      const tpl = templates.find((t) => t.id === templateId);
-      if (tpl) {
-        setType(tpl.type as ContentType);
-        setPrompt(tpl.prompt);
-        setSelectedTemplate(tpl.id);
-      }
-    }
-  }, [searchParams, templates]);
+  }, [searchParams]);
 
   function handleTemplateSelect(templateId: string) {
     const tpl = templates.find((t) => t.id === templateId);

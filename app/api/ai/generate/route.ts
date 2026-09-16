@@ -1,7 +1,9 @@
 import { auth } from "@clerk/nextjs/server";
 import { NextResponse } from "next/server";
+import { z } from "zod";
 import { db } from "@/src/lib/db";
 import { getOrCreateUser, requireUserId } from "@/src/lib/dal";
+import { spendCredits } from "@/src/lib/credits";
 
 const DEMO_CONTENT: Record<string, (topic: string) => string> = {
   blog: (topic) => `Title: ${topic} — A Complete Guide for 2025
@@ -281,6 +283,11 @@ A: Absolutely. Many professionals handle it in-house with the right tools and kn
 *Content optimized for SEO by ContentForge AI*`,
 };
 
+const GenerateRequestSchema = z.object({
+  type: z.enum(["blog", "social", "email", "ad", "website", "product", "seo"]).default("blog"),
+  prompt: z.string().min(1, "Prompt is required").max(10000, "Prompt is too long"),
+});
+
 export const runtime = "nodejs";
 export const maxDuration = 30;
 
@@ -290,17 +297,25 @@ export async function POST(req: Request) {
     const userId = requireUserId(rawUserId);
 
     const body = await req.json();
-    const type = (body.type ?? "blog") as string;
-    const prompt = (body.prompt ?? "").trim();
+    const parsed = GenerateRequestSchema.safeParse(body);
 
-    if (!prompt) {
+    if (!parsed.success) {
       return NextResponse.json(
-        { error: "Prompt is required." },
+        { error: parsed.error.issues[0]?.message ?? "Invalid request" },
         { status: 400 }
       );
     }
 
+    const { type, prompt } = parsed.data;
     const user = await getOrCreateUser(userId);
+
+    if (user.credits < 1) {
+      return NextResponse.json(
+        { error: "Insufficient credits" },
+        { status: 402 }
+      );
+    }
+
     const hasOpenAI = process.env.OPENAI_API_KEY && !process.env.OPENAI_API_KEY.includes("placeholder");
 
     let content: string;
@@ -332,6 +347,8 @@ export async function POST(req: Request) {
       },
     });
 
+    await spendCredits(userId, 1);
+
     return NextResponse.json({
       content,
       type,
@@ -340,11 +357,10 @@ export async function POST(req: Request) {
     });
   } catch (error: unknown) {
     console.error("Generate error:", error);
-    const message =
-      error instanceof Error && error.message === "Unauthorized"
-        ? "Unauthorized"
-        : "Something went wrong.";
-    return NextResponse.json({ error: message }, { status: 401 });
+    if (error instanceof Error && error.message === "Unauthorized") {
+      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+    }
+    return NextResponse.json({ error: "Internal server error" }, { status: 500 });
   }
 }
 

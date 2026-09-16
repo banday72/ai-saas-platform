@@ -3,9 +3,8 @@
 import { useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { Button, Card, CardContent, CardHeader, CardTitle, Input, Textarea, Label } from "@/src/components/ui";
+import { Button, Card, CardContent, CardHeader, CardTitle } from "@/src/components/ui";
 import { Alert } from "@/src/components/ui/Alert";
-import { LoadingSpinner } from "@/src/components/ui/LoadingSpinner";
 import { Copy, Check, ArrowLeft, Download, Folder, Tag, Trash2, Sparkles } from "lucide-react";
 
 const TYPES: Record<string, string> = {
@@ -37,12 +36,10 @@ export function ContentDetailClient({
   generation,
   folders,
   tags,
-  creditsLeft,
 }: {
   generation: Generation;
   folders: FolderType[];
   tags: TagType[];
-  creditsLeft: number;
 }) {
   const router = useRouter();
   const [copied, setCopied] = useState(false);

@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Button, Card, CardContent, Input } from "@/src/components/ui";
 import { Alert } from "@/src/components/ui/Alert";
-import { Search, Trash2, Eye, X, ArrowRight, FolderOpen } from "lucide-react";
+import { Search, Trash2, Eye, X, FolderOpen } from "lucide-react";
 
 const TYPES: Record<string, string> = {
   blog: "Blog Post",
@@ -28,33 +28,17 @@ interface Generation {
   tags?: { id: string; name: string; color: string | null }[];
 }
 
-interface Folder {
-  id: string;
-  name: string;
-  color: string | null;
-}
-
-interface Tag {
-  id: string;
-  name: string;
-  color: string | null;
-}
-
 export function HistoryClient({
   generations,
   totalPages,
   currentPage,
   total,
-  folders,
-  tags,
   filters,
 }: {
   generations: Generation[];
   totalPages: number;
   currentPage: number;
   total: number;
-  folders: Folder[];
-  tags: Tag[];
   filters: { search: string; type: string; folderId: string; tagId: string };
 }) {
   const router = useRouter();

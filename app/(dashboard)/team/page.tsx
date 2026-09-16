@@ -15,53 +15,21 @@ export default async function TeamPage() {
 
   const dbUser = await getOrCreateUser(user.id);
 
-  const [memberships, ownedTeams] = await Promise.all([
-    db.teamMember.findMany({
-      where: { userId: dbUser.id },
-      include: {
-        team: {
-          include: {
-            members: {
-              include: {
-                user: {
-                  select: { id: true, name: true, email: true, image: true },
-                },
-              },
-            },
+  const ownedTeams = await db.team.findMany({
+    where: { ownerId: dbUser.id },
+    include: {
+      members: {
+        include: {
+          user: {
+            select: { id: true, name: true, email: true, image: true },
           },
         },
       },
-    }),
-    db.team.findMany({
-      where: { ownerId: dbUser.id },
-      include: {
-        members: {
-          include: {
-            user: {
-              select: { id: true, name: true, email: true, image: true },
-            },
-          },
-        },
-      },
-    }),
-  ]);
+    },
+  });
 
   return (
     <TeamClient
-      memberships={memberships.map((m) => ({
-        ...m,
-        team: {
-          ...m.team,
-          members: m.team.members.map((mem) => ({
-            ...mem,
-            user: {
-              ...mem.user,
-              name: mem.user.name ?? null,
-              image: mem.user.image ?? null,
-            },
-          })),
-        },
-      }))}
       ownedTeams={ownedTeams.map((t) => ({
         ...t,
         members: t.members.map((mem) => ({
@@ -73,7 +41,6 @@ export default async function TeamPage() {
           },
         })),
       }))}
-      currentPlan={dbUser.subscriptionPlan}
     />
   );
 }
