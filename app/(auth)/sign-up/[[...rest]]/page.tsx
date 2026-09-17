@@ -25,7 +25,8 @@ export default function SignUpPage() {
         </div>
         <div className="rounded-xl border border-zinc-800 bg-zinc-900/50 p-6">
           <SignUp
-            forceRedirectUrl="/dashboard"
+            afterSignUpUrl="/dashboard"
+            signInUrl="/sign-in"
             appearance={{
               elements: {
                 rootBox: "w-full",
